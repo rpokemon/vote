@@ -1,0 +1,24 @@
+{
+  "name": "vote",
+  "version": "1.0.0",
+  "description": "A surveying platform for Subreddit votes. Provides voter UX, data storage and integrity checking.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rpokemon/vote.git"
+  },
+  "author": "rpokemon",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/rpokemon/vote/issues"
+  },
+  "homepage": "https://github.com/rpokemon/vote#readme",
+  "dependencies": {
+    "debug": "^4.0.1",
+    "ejs": "^2.6.1",
+    "express": "^4.16.3"
+  }
+}
