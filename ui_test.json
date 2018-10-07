@@ -1,0 +1,90 @@
+{
+    "survey_name" : "User Interface Test Survey",
+    "survey_description" : "This is a survey that contains every possible response type in order to exercise the user interface generation and survey response mechanisms.",
+    "questions": [
+        {
+            "question": "bool not required",
+            "info": "important info yo",
+            "required": false,
+            "response_type": "bool",
+            "response_scale": [
+                "yes",
+                "no",
+                "maybe"
+            ]
+        },
+        {
+            "question": "bool required",
+            "info": "important info yo",
+            "required": true,
+            "response_type": "bool",
+            "response_scale": [
+                "yes",
+                "no",
+                "maybe"
+            ]
+        },
+        {
+            "question": "multi not required",
+            "info": "important info yo",
+            "required": 0,
+            "response_type": "multi",
+            "response_scale": [
+                "yes",
+                "no",
+                "maybe"
+            ]
+        },
+        {
+            "question": "multi require 2",
+            "info": "important info yo",
+            "required": 2,
+            "response_type": "multi",
+            "response_scale": [
+                "yes",
+                "no",
+                "maybe"
+            ]
+        },
+        {
+            "question": "integer not required",
+            "info": "important info yo",
+            "required": false,
+            "response_type": "int",
+            "response_scale": [
+                0,
+                10
+            ]
+        },
+        {
+            "question": "integer required",
+            "info": "important info yo",
+            "required": true,
+            "response_type": "int",
+            "response_scale": [
+                0,
+                10
+            ]
+        },
+        {
+            "question": "text not required",
+            "info": "important info yo",
+            "required": false,
+            "response_type": "text",
+            "response_scale": [
+                "10w",
+                "250c"
+            ]
+        },
+        {
+            "question": "text required",
+            "info": "important info yo",
+            "required": true,
+            "response_type": "text",
+            "response_scale": [
+                "10c",
+                "250w"
+            ]
+        }
+    ]
+}

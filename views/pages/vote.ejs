@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <% include ../partials/head %>
+</head>
+<body class="container">
+
+<% include ../partials/header %>
+
+<main>
+    <section class="d-flex align-items-center justify-content-center" style="height: 100vh">
+        <div class="jumbotron col-lg-6">
+            <h1 class="display-4"><%= survey_name %></h1>
+            <p class="lead">
+                <%= survey_description %>
+            </p>
+            <button type="button" onclick="$('body').scrollTo($(this).parents('section').next(), 1000, { easing: 'easeInOutQuint' });" class="btn btn-primary next-section">Let's Get Started!</button>
+        </div>
+        <% if (!locals.questions || locals.questions.constructor !== Array) { %>
+        <div class="col-lg-6">
+            <!-- authentication UI -->
+        </div>
+    </section>
+    <% } else { %>
+    </section>
+        <% questions.forEach((vote, key, arr) => { %>
+            <% if (Object.is(arr.length - 1, key)) { %>
+                <% vote.last = true; %>
+            <% } %>
+            <% include ../partials/question.ejs vote %>
+        <% }); %>
+    <% } %>
+</main>
+
+<footer>
+    <% include ../partials/footer %>
+</footer>
+
+</body>
+</html>
