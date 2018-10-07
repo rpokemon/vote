@@ -17,10 +17,14 @@
         </div>
         <div class="row">
             <div class="col-lg-12 text-center">
+                <% if (!vote.first) { %>
                 <button type="button" onclick="$('body').scrollTo($(this).parents('section').prev(), 1000, { easing: 'easeInOutQuint' });" class="btn btn-outline-secondary px-5">Back</button>
+                <% } %>
+
                 <% if (!vote.required && !vote.last) { %> 
                 <button type="button" onclick="$('body').scrollTo($(this).parents('section').next(), 1000, { easing: 'easeInOutQuint' });" class="btn btn-outline-primary px-5">Skip</button>
                 <% } %>
+                
                 <% if (vote.last) { %>
                 <button type="button" onclick="$('body').scrollTo($(this).parents('section').next(), 1000, { easing: 'easeInOutQuint' });" class="btn btn-success px-5">Submit</button>
                 <% } else { %>

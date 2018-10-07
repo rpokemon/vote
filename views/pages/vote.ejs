@@ -1,3 +1,4 @@
+<% locals.require_auth = !locals.questions || locals.questions.constructor !== Array; %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,28 +9,49 @@
 <% include ../partials/header %>
 
 <main>
-    <section class="d-flex align-items-center justify-content-center" style="height: 100vh">
-        <div class="jumbotron col-lg-6">
-            <h1 class="display-4"><%= survey_name %></h1>
-            <p class="lead">
-                <%= survey_description %>
-            </p>
-            <button type="button" onclick="$('body').scrollTo($(this).parents('section').next(), 1000, { easing: 'easeInOutQuint' });" class="btn btn-primary next-section">Let's Get Started!</button>
+    <section class="d-flex flex-column justify-content-center" style="height: 100vh">
+        <div class="">
+            <div class="jumbotron">
+                <h1 class="display-4"><%= survey_name %></h1>
+                <p><%= survey_description %></p>
+            </div>
         </div>
-        <% if (!locals.questions || locals.questions.constructor !== Array) { %>
-        <div class="col-lg-6">
+        <div class="flex-column">
+            <% if (require_auth) { %>
             <!-- authentication UI -->
+            <form class="form-inline justify-content-center">
+                <label class="mb-2 mr-sm-2">First, we need to verify your reddit username: </label>
+                <label class="sr-only" for="username">Username</label>
+                <div class="input-group mb-2 mr-sm-2">
+                    <div class="input-group-prepend">
+                        <div class="input-group-text">/u/</div>
+                    </div>
+                    <input type="text" class="form-control" id="username" placeholder="username">
+                </div>
+                <!-- currently just skips past -->
+                <button type="button" onclick="$('body').scrollTo($(this).parents('section').next(), 1000, { easing: 'easeInOutQuint' });" class="mb-2 mr-sm-2 btn btn-primary">Verify</button>
+            </form>
+            <% } else { %>
+            <!-- get started UI -->
+            <form class="form-inline justify-content-center">
+                <button type="button" onclick="$('body').scrollTo($(this).parents('section').next(), 1000, { easing: 'easeInOutQuint' });" class="btn btn-primary px-5 mb-2 mr-sm-2 ">Let's Get Started!</button>
+            </form>
+            <% } %>
         </div>
     </section>
-    <% } else { %>
-    </section>
+
+    <!-- user already auth OR survey auth not req. -->
+    <% if (!require_auth) { %>
         <% questions.forEach((vote, key, arr) => { %>
             <% if (Object.is(arr.length - 1, key)) { %>
                 <% vote.last = true; %>
+            <% } else if (Object.is(0, key)) { %>
+                <% vote.first = true; %>
             <% } %>
             <% include ../partials/question.ejs vote %>
         <% }); %>
     <% } %>
+
 </main>
 
 <footer>
