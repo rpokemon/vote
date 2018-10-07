@@ -1,3 +1,7 @@
+# Survey files
+surveys/*
+!surveys/ui_test.json
+
 # Logs
 logs
 *.log

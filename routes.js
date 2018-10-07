@@ -5,27 +5,26 @@ module.exports = (express) => {
 
     // GET /vote/somevotename
     express.get('/vote/:vote_name', (req, res) => {
-        if (req.params.vote_name === 'ui_test') {
-            var survey = JSON.parse(fs.readFileSync(`${__dirname}/ui_test.json`, 'utf-8'));
-            survey.path = req.path;
-            return res.status(200).render('pages/vote', survey);
+
+        // Handle if survey doesn't exist
+        if (!fs.existsSync(`${__dirname}/surveys/${req.params.vote_name}.json`)) {
+            var error = { };
+            error.survey_name = "Error 404: Survey not found";
+            error.survey_description = "The survey you have specified could not be found.";
+            error.path = req.path;
+            return res.status(404).render('pages/error', error);
         }
-            
 
-        var survey = { };
-
-        // TODO: Get survey name and description
-        survey.survey_name = "some survey name";
-        survey.survey_description = "some longform survey description";
+        // Load the survey config
+        var survey = JSON.parse(fs.readFileSync(`${__dirname}/surveys/${req.params.vote_name}.json`, 'utf-8'));
         survey.path = req.path;
 
+
         // TODO: If authenticated, get the questions
-        if (req.session.auth)
+        /*if (req.session.auth)
         {
             survey.questions = [ ];
-        }
-
-        // TODO: Handle survey doesn't exist
+        }*/
 
         res.status(200).render('pages/vote', survey);
     });
