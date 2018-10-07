@@ -5,14 +5,19 @@ module.exports = (express) => {
 
     // GET /vote/somevotename
     express.get('/vote/:vote_name', (req, res) => {
-        if (req.params.vote_name === 'ui_test')
-            return res.status(200).render('pages/vote', JSON.parse(fs.readFileSync(`${__dirname}/ui_test.json`, 'utf-8')));
+        if (req.params.vote_name === 'ui_test') {
+            var survey = JSON.parse(fs.readFileSync(`${__dirname}/ui_test.json`, 'utf-8'));
+            survey.path = req.path;
+            return res.status(200).render('pages/vote', survey);
+        }
+            
 
         var survey = { };
 
         // TODO: Get survey name and description
         survey.survey_name = "some survey name";
         survey.survey_description = "some longform survey description";
+        survey.path = req.path;
 
         // TODO: If authenticated, get the questions
         if (req.session.auth)
@@ -52,6 +57,7 @@ module.exports = (express) => {
         // TODO: get results object for vote
         survey.survey_name = "some survey name";
         survey.survey_description = "some longform survey description";
+        survey.path = req.path;
 
         // TBD: results object format
         res.status(200).render('pages/results', survey);
