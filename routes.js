@@ -1,9 +1,17 @@
 const fs = require('fs');
 const crypto = require('crypto');
-var request = require('request');
+const request = require('request');
 const debug = require('debug')('routes');
 
 const secrets = JSON.parse(fs.readFileSync(`${__dirname}/secrets.json`, 'utf-8'));
+
+function genError(req, res, type, name, description) {
+    var error = {};
+    error.survey_name = `Error ${type}: ${name}`;
+    error.survey_description = description;
+    error.path = req.path;
+    return res.status(type).render('pages/error', error);
+}
 
 module.exports = (express) => {
 
@@ -11,13 +19,8 @@ module.exports = (express) => {
     express.get('/vote/auth', (req, res) => {
 
         // Verify authentication state
-        if (req.session.state !== req.query.state) {
-            var error = {};
-            error.survey_name = "Error 500: Internal Server Error";
-            error.survey_description = "An error has occured, please try again.";
-            error.path = req.path;
-            return res.status(500).render('pages/error', error);
-        }
+        if (!req.session.state || req.session.state !== req.query.state)
+            return genError(req, res, 500, 'Internal Server Error', 'An error has occured, please try again.');
 
         // Get information from reddit
         request.post('https://www.reddit.com/api/v1/access_token', {
@@ -75,13 +78,8 @@ module.exports = (express) => {
     express.get('/vote/:vote_name', (req, res) => {
 
         // Handle if survey doesn't exist
-        if (!fs.existsSync(`${__dirname}/surveys/${req.params.vote_name}.json`)) {
-            var error = {};
-            error.survey_name = "Error 404: Survey not found";
-            error.survey_description = "The survey you have specified could not be found.";
-            error.path = req.path;
-            return res.status(404).render('pages/error', error);
-        }
+        if (!fs.existsSync(`${__dirname}/surveys/${req.params.vote_name}.json`))
+            return genError(req, res, 404, 'Survey not found', 'The survey you have specified could not be found.');
 
         // Load the survey config
         var survey = JSON.parse(fs.readFileSync(`${__dirname}/surveys/${req.params.vote_name}.json`, 'utf-8'));
@@ -102,21 +100,12 @@ module.exports = (express) => {
         }
 
         // Handle if user is not authorised
-        if (!req.session.is_mod && survey.requires_mod) {
-            var error = {};
-            error.survey_name = "Error 401: Unauthorized";
-            error.survey_description = "You are not authorized to access this survey.";
-            error.path = req.path;
-            return res.status(401).render('pages/error', error);
-        }
+        if (!req.session.is_mod && survey.requires_mod)
+            return genError(req, res, 401, 'Unauthorized', 'You are not authorized to access this survey.');
 
         // TODO: Handle if the user has already voted
         if (!true) {
-            var error = {};
-            error.survey_name = "Error 401: Unauthorized";
-            error.survey_description = "You are not authorized to access this survey.";
-            error.path = req.path;
-            return res.status(401).render('pages/error', error);
+            return genError(req, res, 403, 'Access Denied', 'You have already voted on this survey.');
         }
 
         survey.reddit_username = req.session.reddit_username
