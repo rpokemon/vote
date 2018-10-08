@@ -2,6 +2,9 @@
 surveys/*
 !surveys/ui_test.json
 
+# Reddit API files
+secrets.json
+
 # Logs
 logs
 *.log

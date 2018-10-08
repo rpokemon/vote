@@ -19,18 +19,7 @@
         <div class="flex-column">
             <% if (require_auth) { %>
             <!-- authentication UI -->
-            <form class="form-inline justify-content-center">
-                <label class="mb-2 mr-sm-2">First, we need to verify your reddit username: </label>
-                <label class="sr-only" for="username">Username</label>
-                <div class="input-group mb-2 mr-sm-2">
-                    <div class="input-group-prepend">
-                        <div class="input-group-text">/u/</div>
-                    </div>
-                    <input type="text" class="form-control" id="username" placeholder="username">
-                </div>
-                <!-- currently just skips past -->
-                <button type="button" onclick="$('body').scrollTo($(this).parents('section').next(), 1000, { easing: 'easeInOutQuint' });" class="mb-2 mr-sm-2 btn btn-primary">Verify</button>
-            </form>
+            <% include ../partials/authentication %>
             <% } else { %>
             <!-- get started UI -->
             <form class="form-inline justify-content-center">
