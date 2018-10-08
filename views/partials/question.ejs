@@ -13,6 +13,17 @@
         <div class="row">
             <div class="mx-auto mb-5 mt-3">
                 <!-- inputs go here -->
+                <% switch (vote.response_type) { case "bool": %>
+                    <p>SINGLE-CHOICE RESPONSE GENERATOR DEFINED BUT NOT FOUND</p>
+                <% break; case "multi": %>
+                    <p>MULTIPLE-CHOICE RESPONSE GENERATOR DEFINED BUT NOT FOUND</p>
+                <% break; case "int":%>
+                    <p>NUMERIC RESPONSE GENERATOR DEFINED BUT NOT FOUND</p>
+                <% break; case "text":%>
+                    <p>TEXTUAL RESPONSE GENERATOR DEFINED BUT NOT FOUND</p>
+                <% break; default: %>
+                    <p>WARNING: NO GENERATOR DEFINED</p>
+                <% break; } %>
             </div>
         </div>
         <div class="row">
