@@ -5,6 +5,8 @@ const debug = require('debug')('routes');
 
 const secrets = JSON.parse(fs.readFileSync(`${__dirname}/secrets.json`, 'utf-8'));
 
+
+// Function generates an error page given error type, name and description
 function genError(req, res, type, name, description) {
     var error = {};
     error.survey_name = `Error ${type}: ${name}`;
@@ -74,6 +76,7 @@ module.exports = (express) => {
         });
     });
 
+
     // GET /vote/somevotename
     express.get('/vote/:vote_name', (req, res) => {
 
@@ -108,10 +111,12 @@ module.exports = (express) => {
             return genError(req, res, 403, 'Access Denied', 'You have already voted on this survey.');
         }
 
-        survey.reddit_username = req.session.reddit_username
+        survey.reddit_username = req.session.reddit_username;
+        survey.is_mod = req.session.is_mod;
 
         res.status(200).render('pages/vote', survey);
     });
+
 
     // POST /vote/somevotename/response
     express.post('/vote/:vote_name/response', (req, res) => {
@@ -129,6 +134,7 @@ module.exports = (express) => {
 
         res.status(200);
     });
+
 
     // GET /vote/somevotename/results
     express.get('/vote/:vote_name/results', (req, res) => {
