@@ -4,8 +4,32 @@
     "requires_mod": false,
     "questions": [
         {
-            "question": "bool not required",
-            "info": "important info yo",
+            "question": "multiple-choice, single-selection",
+            "info": "boolean, not required, display as dropdown",
+            "required": false,
+            "response_type": "bool",
+            "response_scale": [
+                "yes",
+                "no",
+                "maybe"
+            ],
+            "display_as": "dropdown"
+        },
+        {
+            "question": "multiple-choice, single-selection",
+            "info": "boolean, not required, display as radio",
+            "required": false,
+            "response_type": "bool",
+            "response_scale": [
+                "yes",
+                "no",
+                "maybe"
+            ],
+            "display_as": "radio"
+        },
+        {
+            "question": "multiple-choice, single-selection",
+            "info": "boolean, not required, display as not set (expect radio)",
             "required": false,
             "response_type": "bool",
             "response_scale": [
@@ -15,8 +39,8 @@
             ]
         },
         {
-            "question": "bool required",
-            "info": "important info yo",
+            "question": "multiple-choice, single-selection",
+            "info": "boolean, required",
             "required": true,
             "response_type": "bool",
             "response_scale": [
@@ -26,8 +50,8 @@
             ]
         },
         {
-            "question": "multi not required",
-            "info": "important info yo",
+            "question": "multiple-choice, multiple-selection",
+            "info": "multi, not required",
             "required": 0,
             "response_type": "multi",
             "response_scale": [
@@ -37,8 +61,8 @@
             ]
         },
         {
-            "question": "multi require 2",
-            "info": "important info yo",
+            "question": "multiple-choice, multiple-selection",
+            "info": "multi, 2 selections required",
             "required": 2,
             "response_type": "multi",
             "response_scale": [
@@ -48,8 +72,8 @@
             ]
         },
         {
-            "question": "integer not required",
-            "info": "important info yo",
+            "question": "numeric",
+            "info": "int, not required",
             "required": false,
             "response_type": "int",
             "response_scale": [
@@ -58,8 +82,8 @@
             ]
         },
         {
-            "question": "integer required",
-            "info": "important info yo",
+            "question": "numeric",
+            "info": "int, required",
             "required": true,
             "response_type": "int",
             "response_scale": [
@@ -68,8 +92,8 @@
             ]
         },
         {
-            "question": "text not required",
-            "info": "important info yo",
+            "question": "text",
+            "info": "text, not required, min length 10 words, max length 250 characters",
             "required": false,
             "response_type": "text",
             "response_scale": [
@@ -78,8 +102,8 @@
             ]
         },
         {
-            "question": "text required",
-            "info": "important info yo",
+            "question": "text",
+            "info": "text, required, min length 10 characters, max length 250 words",
             "required": true,
             "response_type": "text",
             "response_scale": [
