@@ -13,7 +13,9 @@
             <!-- display username if logged in -->
             <% if (!require_auth) { %>
                 <ul class="navbar-nav ml-auto">
-                    <li class="nav-item">/u/<%= reddit_username %></li>
+                    <a href="https://reddit.com/u/<%= reddit_username %>">
+                        <li class="nav-item">/u/<%= reddit_username %></li>
+                    </a>
                 </ul>
             <% } %>
         </div>
