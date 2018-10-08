@@ -37,7 +37,7 @@
             <% } else if (Object.is(0, key)) { %>
                 <% vote.first = true; %>
             <% } %>
-            <% include ../partials/question.ejs vote %>
+            <% include ../partials/question.ejs vote key %>
         <% }); %>
     <% } %>
 
