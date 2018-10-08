@@ -1,1 +1,17 @@
-<h1 class="badge badge-warning">NOTICE: Multiple-choice, single-selection response generator defined but not implemented</h1>
+<% switch(vote.display_as) { case "dropdown": %>
+<select class="form-control form-control-lg" name="question_<%= key %>">
+<% vote.response_scale.forEach((response, index) => { %>
+<% id = `question_${key}_${index}`; %>
+    <option id="<%= id %>"><%= response %></option>
+<% }); %>
+</select>
+<% break; case "radio": default: %>
+<% vote.response_scale.forEach((response, index) => { %>
+<div class="form-check mb-2">
+    <% id= `question_${key}_${index}`; %>
+    <input class="form-check-input" type="radio" name="question_<%= key %>" id="<%= id %>" value="<%= response %>" />
+    <label class="form-check-label" for="<%= id %>">
+        <%= response %>
+    </label>
+</div>
+<% }); break; } %>
