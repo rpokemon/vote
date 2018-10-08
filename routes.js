@@ -58,8 +58,10 @@ module.exports = (express) => {
                 }, function (error, response, body) {
                     req.session.is_mod = false;
 
-                    for (var key in JSON.parse(body).data.children) {
-                        subreddit = JSON.parse(body).data.children[key];
+                    var json = JSON.parse(body);
+
+                    for (var key in json.data.children) {
+                        subreddit = json.data.children[key];
                         if (subreddit.data.url === '/r/pokemon/')
                             req.session.is_mod = true;
                     }
