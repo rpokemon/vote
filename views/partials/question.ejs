@@ -14,13 +14,13 @@
             <div class="mx-auto mb-5 mt-3">
                 <!-- inputs go here -->
                 <% switch (vote.response_type) { case "bool": %>
-                <% include ./generators/bool.ejs vote.response_scale %>
+                <% include ./generators/bool.ejs vote.response_scale key %>
                 <% break; case "multi": %>
-                <% include ./generators/multi.ejs vote.response_scale %>
+                <% include ./generators/multi.ejs vote.response_scale key %>
                 <% break; case "int":%>
-                <% include ./generators/numeric.ejs vote.response_scale %>
+                <% include ./generators/numeric.ejs vote.response_scale key %>
                 <% break; case "text":%>
-                <% include ./generators/textual.ejs vote.response_scale %>
+                <% include ./generators/textual.ejs vote.response_scale key %>
                 <% break; default: %>
                 <h1 class="badge badge-danger">ERROR: No response scale generator found for '<%= vote.response_type %>'.</h1>
                 <% break; } %>
