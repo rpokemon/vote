@@ -114,18 +114,29 @@ module.exports = (express) => {
     // POST /vote/somevotename/response
     express.post('/vote/:vote_name/response', (req, res) => {
 
-        // ignore any response where the user hasn't otherwise authenticated
+        // 401 UNAUTHORIZED: User hasn't gone through account verification
         if (!req.session.auth)
-            return res.status(401);
+            return res.status(401).end();
 
-        // req.body will be an array
-        var response = req.body;
+        // 400 BAD REQUEST: Malformed or non-existent response, probably a UI-bug
+        if (false)
+            return res.status(400).end();
 
-        // TBD: response format
+        // 409 CONFLICT: Response contains wrong number of questions or responses aren't what we expect, indicating tomfoolery.
+        if (false)
+            return res.status(409).end();
+
+        // req.body.responses is an object containing keys of format q{id}
+        // where id is the question number. values are in format:-
+        // boolean: single string response
+        // multi: array of string responses
+        // numeric: single integer response
+        // text: single string response, long form
+        var response = req.body.responses;
 
         // TODO: store results for vote from response
 
-        res.status(200);
+        res.status(200).end();
     });
 
 
