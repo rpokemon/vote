@@ -119,7 +119,7 @@ module.exports = {
             return `https://discordapp.com/api/oauth2/authorize?client_id=${secrets.discord.client_id}&state=${req.session.discord_state}&redirect_uri=${secrets.discord.redirect_uri}&response_type=code&scope=identify`
         },
         validate: function (req, res) {
-            return req.session.discord_state || req.session.discord_state !== req.query.state;
+            return req.session.discord_state && req.session.discord_state === req.query.state;
         }
     }
 }
