@@ -79,8 +79,28 @@ module.exports = (express) => {
     });
 
 
+    // GET /vote/deauth
+    express.get('/vote/deauth', (req, res) => {
+
+        // Remove session information
+        delete req.session.auth;
+        delete req.session.reddit_username;
+        delete req.session.is_mod;
+
+        // Redirect to last survey
+        if (req.session.survey_name)
+            return res.redirect(`/vote/${req.session.survey_name}`);
+        else
+            return res.redirect('/');
+
+    });
+
+
     // GET /vote/somevotename
     express.get('/vote/:vote_name', (req, res) => {
+
+        // Set most recent survey name
+        req.session.survey_name = req.params.vote_name;
 
         // Handle if survey doesn't exist
         if (!fs.existsSync(`${__dirname}/surveys/${req.params.vote_name}.json`))
@@ -92,7 +112,6 @@ module.exports = (express) => {
 
         // Handle if the user is not logged in
         if (!req.session.auth) {
-            req.session.survey_name = req.params.vote_name;
             req.session.state = crypto.randomBytes(20).toString('hex');
 
             survey.questions = null;
