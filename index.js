@@ -10,6 +10,7 @@ app.use(session({
     cookie: { secure: false }
 }));
 
+app.use(express.json());
 app.use(express.static('static'));
 app.set('view engine', 'ejs');
 
