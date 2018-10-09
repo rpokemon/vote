@@ -23,7 +23,7 @@
             <% } else { %>
             <!-- get started UI -->
             <form class="form-inline justify-content-center">
-                <button type="button" onclick="$('body').scrollTo($(this).parents('section').next(), 1000, { easing: 'easeInOutQuint' });" class="btn btn-primary px-5 mb-2 mr-sm-2 ">Let's Get Started!</button>
+                <button type="button" class="btn btn-primary px-5 mb-2 mr-sm-2 next-section">Let's Get Started!</button>
             </form>
             <% } %>
         </div>
@@ -46,6 +46,26 @@
 <footer>
     <% include ../partials/footer %>
 </footer>
+
+<!-- Modal -->
+<div class="modal fade" id="submissionResponseModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="submissionResponseModalTitle">Modal title</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body" id="submissionResponseModalMessage">
+            Modal Message
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary">Take me back to r/Pokemon</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
 </body>
 </html>
