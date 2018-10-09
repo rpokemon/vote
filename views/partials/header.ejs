@@ -11,10 +11,10 @@
             </ul>
 
             <!-- display username if logged in -->
-            <% if (!require_auth) { %>
+            <% if (typeof auth != 'undefined') { %>
                 <ul class="navbar-nav ml-auto">
-                    <a href="https://reddit.com/u/<%= reddit_username %>">
-                        <li class="nav-item badge badge-<% if (is_mod) { %>success<% } else { %>secondary<% }%>">/u/<%= reddit_username %><% if (is_mod) { %> [M]<% } %></li>
+                    <a href="https://reddit.com/u/<%= auth.username %>">
+                        <li class="nav-item badge badge-<% if (auth.is_mod) { %>success<% } else { %>secondary<% }%>">/u/<%= auth.username %><% if (auth.is_mod) { %> [M]<% } %></li>
                     </a>&nbsp;
                     <a href="/vote/deauth">
                         <li class="nav-item">Sign out</li>

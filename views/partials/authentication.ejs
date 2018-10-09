@@ -1,11 +1,5 @@
-<form class="form-inline justify-content-center" action='https://www.reddit.com/api/v1/authorize'>
-    <input type="hidden" name="client_id" value="<%= client_id %>">
-    <input type="hidden" name="response_type" value="code">
-    <input type="hidden" name="state" value="<%= auth_state %>">
-    <input type="hidden" name="redirect_uri" value="<%= redirect_uri %>">
-    <input type="hidden" name="duration" value="temporary">
-    <input type="hidden" name="scope" value="identity mysubreddits">
-    <label class="mb-2 mr-sm-2">First, we need to verify your reddit account: </label>
+<a class="form-inline justify-content-center" href='<%= auth_url %>'>
+    <label class="mb-2 mr-sm-2">First, we need to verify your <%= auth_type %> account: </label>
     <!-- currently just skips past -->
     <button type="submit" class="mb-2 mr-sm-2 btn btn-primary">Verify</button>
-</form>
+</a>

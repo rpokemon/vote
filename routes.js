@@ -1,81 +1,62 @@
 const fs = require('fs');
-const crypto = require('crypto');
-const request = require('request');
 const debug = require('debug')('routes');
 
-const secrets = JSON.parse(fs.readFileSync(`${__dirname}/secrets.json`, 'utf-8'));
+const auth = require('./auth.js')
 
 
 // Function generates an error page given error type, name and description
 function genError(req, res, type, name, description) {
-    var error = {};
-    error.survey_name = `Error ${type}: ${name}`;
-    error.survey_description = description;
-    error.path = req.path;
+    var error = {
+        survey_name: `Error ${type}: ${name}`,
+        survey_description: description,
+        path: req.path,
+        auth: req.session.auth
+    };
     return res.status(type).render('pages/error', error);
 }
 
+
+// Function redirects to the last survey visited or root page
+function redirect(req, res) {
+    if (req.session.survey_name)
+        return res.redirect(`/vote/${req.session.survey_name}`);
+    else
+        return res.redirect('/');
+}
+
+
 module.exports = (express) => {
 
-    // GET /vote/auth
-    express.get('/vote/auth', (req, res) => {
+    // GET /
+    express.get('/vote', (req, res) => {
+        var data = {
+            survey_name: 'Home',
+            survey_description: '/r/Pokemon survey platform.',
+            path: '/vote',
+            auth_state: req.session.state,
+            auth: req.session.auth
+        }
+        return res.status(200).render('pages/index', data);
+    });
 
-        // Verify authentication state
-        if (!req.session.state || req.session.state !== req.query.state)
-            return genError(req, res, 500, 'Internal Server Error', 'An error has occured, please try again.');
 
-        // Get information from reddit
-        request.post('https://www.reddit.com/api/v1/access_token', {
-            auth: {
-                username: secrets.client_id,
-                password: secrets.client_secret
-            },
-            body: `grant_type=authorization_code&code=${req.query.code}&redirect_uri=${secrets.redirect_uri}`
-        }, function (error, response, body) {
+    // GET /vote/auth/someauthtype
+    express.get('/vote/auth/:auth_type', async (req, res) => {
 
-            var token = JSON.parse(body).access_token;
+        // Check auth type is valid
+        var auth_type = auth[req.params.auth_type];
+        if (!auth_type)
+            return genError(req, res, 500, 'Internal Server Error', 'An error has occured: Invalid auth type specified. Please try again. ');
 
-            // Get client username
-            request.get('https://oauth.reddit.com/api/v1/me', {
-                auth: {
-                    bearer: token
-                },
-                headers: {
-                    'User-Agent': secrets.user_agent
-                }
-            }, function (error, response, body) {
-                req.session.reddit_username = JSON.parse(body).name;
+        // Check auth is valid
+        if (!auth_type.validate(req, res))
+            return genError(req, res, 500, 'Internal Server Error', 'An error has occured: Auth invalid. Please try again.');
 
-                // Check if client mods subreddit
-                request.get({
-                    url: 'https://oauth.reddit.com/subreddits/mine/moderator',
-                    auth: {
-                        bearer: token
-                    },
-                    headers: {
-                        'User-Agent': secrets.user_agent
-                    }
-                }, function (error, response, body) {
-                    req.session.is_mod = false;
+        // Authorize
+        req.session.auth = await auth_type.authorize(req, res);
 
-                    var json = JSON.parse(body);
-
-                    for (var key in json.data.children) {
-                        subreddit = json.data.children[key];
-                        if (subreddit.data.url === '/r/pokemon/')
-                            req.session.is_mod = true;
-                    }
-
-                    req.session.auth = true;
-
-                    // Redirect to last survey
-                    if (req.session.survey_name)
-                        return res.redirect(`/vote/${req.session.survey_name}`);
-                    else
-                        return res.redirect('/');
-                });
-            });
-        });
+        // Redirect to last survey
+        return redirect(req, res); 
     });
 
 
@@ -84,14 +65,9 @@ module.exports = (express) => {
 
         // Remove session information
         delete req.session.auth;
-        delete req.session.reddit_username;
-        delete req.session.is_mod;
 
         // Redirect to last survey
-        if (req.session.survey_name)
-            return res.redirect(`/vote/${req.session.survey_name}`);
-        else
-            return res.redirect('/');
+        return redirect(req, res);
 
     });
 
@@ -112,19 +88,16 @@ module.exports = (express) => {
 
         // Handle if the user is not logged in
         if (!req.session.auth) {
-            req.session.state = crypto.randomBytes(20).toString('hex');
 
             survey.questions = null;
             survey.require_auth = true;
-            survey.client_id = secrets.client_id;
-            survey.auth_state = req.session.state;
-            survey.redirect_uri = secrets.redirect_uri;
+            survey.auth_url = auth[survey.auth_type].generate_url(req, res)
 
             return res.status(200).render('pages/vote', survey);
         }
 
         // Handle if user is not authorised
-        if (!req.session.is_mod && survey.requires_mod)
+        if (!req.session.auth.is_mod && survey.requires_mod)
             return genError(req, res, 401, 'Unauthorized', 'You are not authorized to access this survey.');
 
         // TODO: Handle if the user has already voted
@@ -132,8 +105,7 @@ module.exports = (express) => {
             return genError(req, res, 403, 'Access Denied', 'You have already voted on this survey.');
         }
 
-        survey.reddit_username = req.session.reddit_username;
-        survey.is_mod = req.session.is_mod;
+        survey.auth = req.session.auth;
 
         res.status(200).render('pages/vote', survey);
     });
