@@ -9,7 +9,9 @@ module.exports = {
     reddit: {
         authorize: async function (req, res) {
 
-            var auth = new Object();
+            var auth = {
+                type: 'reddit'
+            }
             var token = null;
 
             // Get information from reddit
@@ -18,7 +20,11 @@ module.exports = {
                     username: secrets.reddit.client_id,
                     password: secrets.reddit.client_secret
                 },
-                body: `grant_type=authorization_code&code=${req.query.code}&redirect_uri=${secrets.reddit.redirect_uri}`
+                qs: {
+                    grant_type: 'authorization_code',
+                    code: req.query.code,
+                    redirect_uri: secrets.reddit.redirect_uri
+                }
             }, function (error, response, body) {
 
                 token = JSON.parse(body).access_token;
@@ -66,7 +72,7 @@ module.exports = {
             return `https://www.reddit.com/api/v1/authorize?client_id=${secrets.reddit.client_id}&response_type=code&state=${req.session.reddit_state}&redirect_uri=${secrets.reddit.redirect_uri}&duratioon=temporary&scope=identity mysubreddits`;
         },
         validate: function (req, res) {
-            return req.session.reddit_state || req.session.reddit_state !== req.query.state;
+            return req.session.reddit_state && req.session.reddit_state === req.query.state;
         }
     }
 }
