@@ -1,3 +1,6 @@
+# database files
+responses.db
+
 # Survey files
 surveys/*
 !surveys/ui_test*

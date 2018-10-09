@@ -1,6 +1,8 @@
 const fs = require('fs');
 const debug = require('debug')('routes');
-const auth = require('./auth.js')
+
+const db = require('./db.js');
+const auth = require('./auth.js');
 
 const authentication_enabled = !process.env.hasOwnProperty("disable_auth");
 
@@ -56,7 +58,7 @@ module.exports = (express) => {
         req.session.auth = await auth_type.authorize(req, res);
 
         // Redirect to last survey
-        return redirect(req, res); 
+        return redirect(req, res);
     });
 
 
@@ -86,8 +88,7 @@ module.exports = (express) => {
         var survey = JSON.parse(fs.readFileSync(`${__dirname}/surveys/${req.params.vote_name}.json`, 'utf-8'));
         survey.path = req.path;
 
-        if (authentication_enabled)
-        {
+        if (authentication_enabled) {
             // Handle if the user is not logged in
             if (!req.session.auth || req.session.auth.type != survey.auth_type) {
 
@@ -115,7 +116,15 @@ module.exports = (express) => {
 
 
     // POST /vote/somevotename/response
-    express.post('/vote/:vote_name/response', (req, res) => {
+    express.post('/vote/:vote_name/response', async (req, res) => {
+
+        // 400 BAD REQUEST: Survey does not exist
+        if (!fs.existsSync(`${__dirname}/surveys/${req.params.vote_name}.json`))
+            return res.status(400).end();
+
+        // Get the survey
+        var survey = JSON.parse(fs.readFileSync(`${__dirname}/surveys/${req.params.vote_name}.json`, 'utf-8'));
+        survey.name = req.params.vote_name;
 
         // 401 UNAUTHORIZED: User hasn't gone through account verification
         if (authentication_enabled && !req.session.auth)
@@ -124,6 +133,10 @@ module.exports = (express) => {
         // 400 BAD REQUEST: Malformed or non-existent response, probably a UI-bug
         if (false)
             return res.status(400).end();
+
+        // 409 CONFLICT: User has already responded to the survey
+        if (await db.hasRespomded(survey, req.session.auth.username))
+            return res.status(409).end();
 
         // 409 CONFLICT: Response contains wrong number of questions or responses aren't what we expect, indicating tomfoolery.
         if (false)
@@ -135,9 +148,9 @@ module.exports = (express) => {
         // multi: array of string responses
         // numeric: single integer response
         // text: single string response, long form
-        var response = req.body.responses;
 
-        // TODO: store results for vote from response
+        // Store results for vote from response
+        await db.setResponse(survey, req.session.auth.username, req.body.responses);
 
         res.status(200).end();
     });

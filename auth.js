@@ -75,6 +75,8 @@ module.exports = {
             return req.session.reddit_state && req.session.reddit_state === req.query.state;
         }
     },
+
+    
     discord: {
         authorize: async function (req, res) {
 
