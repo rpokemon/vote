@@ -17,15 +17,15 @@
             </div>
         </div>
         <div class="flex-column">
+            <form class="form-inline justify-content-center">
             <% if (require_auth) { %>
             <!-- authentication UI -->
             <% include ../partials/authentication %>
             <% } else { %>
             <!-- get started UI -->
-            <form class="form-inline justify-content-center">
                 <button type="button" class="btn btn-primary px-5 mb-2 mr-sm-2 next-section">Let's Get Started!</button>
-            </form>
             <% } %>
+            </form>
         </div>
     </section>
 
