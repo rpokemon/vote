@@ -1,6 +1,6 @@
 # Survey files
 surveys/*
-!surveys/ui_test.json
+!surveys/ui_test*
 
 # Reddit API files
 secrets.json
