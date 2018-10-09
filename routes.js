@@ -1,8 +1,8 @@
 const fs = require('fs');
 const debug = require('debug')('routes');
-
 const auth = require('./auth.js')
 
+const authentication_enabled = !process.env.hasOwnProperty("disable_auth");
 
 // Function generates an error page given error type, name and description
 function genError(req, res, type, name, description) {
@@ -86,26 +86,29 @@ module.exports = (express) => {
         var survey = JSON.parse(fs.readFileSync(`${__dirname}/surveys/${req.params.vote_name}.json`, 'utf-8'));
         survey.path = req.path;
 
-        // Handle if the user is not logged in
-        if (!req.session.auth || req.session.auth.type != survey.auth_type) {
+        if (authentication_enabled)
+        {
+            // Handle if the user is not logged in
+            if (!req.session.auth || req.session.auth.type != survey.auth_type) {
 
-            survey.questions = null;
-            survey.require_auth = true;
-            survey.auth_url = auth[survey.auth_type].generate_url(req, res)
+                survey.questions = null;
+                survey.require_auth = true;
+                survey.auth_url = auth[survey.auth_type].generate_url(req, res)
 
-            return res.status(200).render('pages/vote', survey);
+                return res.status(200).render('pages/vote', survey);
+            }
+
+            // Handle if user is not authorised
+            if (!req.session.auth.is_mod && survey.requires_mod)
+                return genError(req, res, 401, 'Unauthorized', 'You are not authorized to access this survey.');
+
+            // TODO: Handle if the user has already voted
+            if (!true) {
+                return genError(req, res, 403, 'Access Denied', 'You have already voted on this survey.');
+            }
+
+            survey.auth = req.session.auth;
         }
-
-        // Handle if user is not authorised
-        if (!req.session.auth.is_mod && survey.requires_mod)
-            return genError(req, res, 401, 'Unauthorized', 'You are not authorized to access this survey.');
-
-        // TODO: Handle if the user has already voted
-        if (!true) {
-            return genError(req, res, 403, 'Access Denied', 'You have already voted on this survey.');
-        }
-
-        survey.auth = req.session.auth;
 
         res.status(200).render('pages/vote', survey);
     });
@@ -115,7 +118,7 @@ module.exports = (express) => {
     express.post('/vote/:vote_name/response', (req, res) => {
 
         // 401 UNAUTHORIZED: User hasn't gone through account verification
-        if (!req.session.auth)
+        if (authentication_enabled && !req.session.auth)
             return res.status(401).end();
 
         // 400 BAD REQUEST: Malformed or non-existent response, probably a UI-bug
