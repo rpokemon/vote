@@ -14,12 +14,15 @@
             <% if (typeof auth != 'undefined') { %>
                 <ul class="navbar-nav ml-auto">
 
-                    <% if ( auth.type === 'reddit') { %>
-                    <a href="https://reddit.com<%= auth.username %>">
-                    <% } else if ( auth.type === 'discord') { %>
-                    <a href="https://discordapp.com/channels/@me">
-                    <% } else { %>
-                    <a href='#'>
+                    <% switch (auth.type) {
+                        case 'reddit': %>
+                            <a href="https://reddit.com<%= auth.username %>">
+                            <% break;
+                        case 'discord': %>
+                            <a href="https://discordapp.com/channels/@me">
+                            <% break;
+                        default: %>
+                            <a href='#'>
                     <% } %>
                         <li class="nav-item badge badge-<% if (auth.is_mod) { %>success<% } else { %>secondary<% }%>"><%= auth.username %><% if (auth.is_mod) { %> [M]<% } %></li>
                     </a>&nbsp;
