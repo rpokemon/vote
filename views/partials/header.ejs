@@ -13,9 +13,18 @@
             <!-- display username if logged in -->
             <% if (typeof auth != 'undefined') { %>
                 <ul class="navbar-nav ml-auto">
-                    <a href="https://reddit.com/u/<%= auth.username %>">
-                        <li class="nav-item badge badge-<% if (auth.is_mod) { %>success<% } else { %>secondary<% }%>">/u/<%= auth.username %><% if (auth.is_mod) { %> [M]<% } %></li>
+
+                    <% if ( auth.type === 'reddit') { %>
+                    <a href="https://reddit.com<%= auth.username %>">
+                    <% } else if ( auth.type === 'discord') { %>
+                    <a href="https://discordapp.com/channels/@me">
+                    <% } else { %>
+                    <a href='#'>
+                    <% } %>
+                        <li class="nav-item badge badge-<% if (auth.is_mod) { %>success<% } else { %>secondary<% }%>"><%= auth.username %><% if (auth.is_mod) { %> [M]<% } %></li>
                     </a>&nbsp;
+                    
+
                     <a href="/vote/deauth">
                         <li class="nav-item">Sign out</li>
                     </a>

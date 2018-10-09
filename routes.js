@@ -87,7 +87,7 @@ module.exports = (express) => {
         survey.path = req.path;
 
         // Handle if the user is not logged in
-        if (!req.session.auth) {
+        if (!req.session.auth || req.session.auth.type != survey.auth_type) {
 
             survey.questions = null;
             survey.require_auth = true;

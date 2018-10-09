@@ -9,7 +9,9 @@ module.exports = {
     reddit: {
         authorize: async function (req, res) {
 
-            var auth = new Object();
+            var auth = {
+                type: 'reddit'
+            }
             var token = null;
 
             // Get information from reddit
@@ -34,7 +36,7 @@ module.exports = {
                     'User-Agent': secrets.reddit.user_agent
                 }
             }, function (error, response, body) {
-                auth.username = JSON.parse(body).name;
+                auth.username = `/u/${JSON.parse(body).name}`;
 
             });
 
@@ -67,6 +69,53 @@ module.exports = {
         },
         validate: function (req, res) {
             return req.session.reddit_state || req.session.reddit_state !== req.query.state;
+        }
+    },
+    discord: {
+        authorize: async function (req, res) {
+
+            var auth = {
+                type: 'discord'
+            }
+            var token = null;
+
+            // Get information from discord
+            await request.post('https://discordapp.com/api/v6/oauth2/token', {
+                form: {
+                    client_id: secrets.discord.client_id,
+                    client_secret: secrets.discord.client_secret,
+                    grant_type: 'authorization_code',
+                    code: req.query.code,
+                    redirect_uri: secrets.discord.redirect_uri,
+                    scope: 'identify'
+                },
+            }, function (error, response, body) {
+                token = JSON.parse(body).access_token;
+
+            });
+
+            console.log(token);
+
+            // Get client username
+            await request.get('https://discordapp.com/api/v6//users/@me', {
+                auth: {
+                    bearer: token
+                }
+            }, function (error, response, body) {
+                user = JSON.parse(body);
+                auth.username = `${user.username}#${user.discriminator}`;
+            });
+
+            auth.is_mod = false;
+            return auth;
+
+        },
+        generate_url: function (req, res) {
+            req.session.discord_state = crypto.randomBytes(20).toString('hex');
+            return `https://discordapp.com/api/oauth2/authorize?client_id=${secrets.discord.client_id}&state=${req.session.discord_state}&redirect_uri=${secrets.discord.redirect_uri}&response_type=code&scope=identify`
+        },
+        validate: function (req, res) {
+            return req.session.discord_state || req.session.discord_state !== req.query.state;
         }
     }
 }
