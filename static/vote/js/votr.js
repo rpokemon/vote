@@ -4,22 +4,30 @@ const setResponse = (id, value) => {
     submission_data.responses[`q${id}`] = value;
 };
 
-$(document).ready(() => {
+$(document).ready(function() {
     var activeQuestionPanel = $('section:first-of-type');
 
-    $('.next-section').click(e => {
+    $('.next-section').click(function(e) {
         activeQuestionPanel = $(this).parents('section').next();
         console.log("next section is " + activeQuestionPanel.attr("id"));
         $('body').scrollTo(activeQuestionPanel, 1000, { easing: 'easeInOutQuint' });
     });
 
-    $('.prev-section').click(e => {
+    $('.prev-section').click(function(e) {
         activeQuestionPanel = $(this).parents('section').prev();        
         console.log("next section is " + activeQuestionPanel.attr("id"));
         $('body').scrollTo(activeQuestionPanel, 1000, { easing: 'easeInOutQuint' });
     });
 
-    $('#send_survey_response').click(e => {
+    $('.record-response').click(function(e) {
+        // TODO: record-responses
+    });
+
+    $('.skip-response').click(function(e) {
+        // TODO: record skipped response
+    });
+
+    $('.send-survey-response').click(function(e) {
 
         $.ajax({
             url: '/vote/ui_test/response',
@@ -47,7 +55,7 @@ $(document).ready(() => {
                     case 409:
                         errStr = "The response table was too short, too long, or contained response entries that do not match the required type or format (409 CONFLICT).";
                     default:
-                        errStr = "Unknown failure  (" + jqXHR.status + ")";
+                        errStr = `Unknown failure (${jqXHR.status} ${textStatus.toUpperCase()}).`;
                         break;
                 }
 
