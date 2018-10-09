@@ -97,8 +97,7 @@ module.exports = {
                 token = JSON.parse(body).access_token;
 
             });
-
-            console.log(token);
+            
 
             // Get client username
             await request.get('https://discordapp.com/api/v6//users/@me', {
