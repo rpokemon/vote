@@ -5,16 +5,6 @@ const sqlite = require('sqlite');
 const dbPromise = sqlite.open(`${__dirname}/responses.db`, { Promise });
 
 
-// Function sorts response items
-function sortResponses(responses) {
-    var sorted = new Array(Object.keys(responses).length);
-    for (var index in responses) {
-        sorted[index.match(/\d+/)[0]] = responses[index];
-    }
-    return sorted;
-}
-
-
 // Function creats a new database table if one does not exist
 async function createTable(survey) {
     // Get the database
@@ -24,13 +14,14 @@ async function createTable(survey) {
     var questions = new String();
     for (index in survey.questions) {
         var question = survey.questions[index];
-        questions = questions.concat(`\`question_${index}\` BLOB ${question.required ? 'NOT NULL' : ''},\n`);
+        questions = questions.concat(`\`q${index}\` BLOB,\n`);
     }
 
     // Create the table
     await db.run(`CREATE TABLE IF NOT EXISTS \`${survey.name}\` (
         \`username\` TEXT NOT NULL UNIQUE,
         ${questions}
+        \`completed\` INTEGER NOT NULL DEFAULT 0,
         PRIMARY KEY(\`username\`)
     );`);
 }
@@ -48,26 +39,66 @@ fs.readdirSync(`${__dirname}/surveys`).forEach(async file => {
 });
 
 
+// Creates an entry in the database
+async function createResponse(survey, username) {
+    const db = await dbPromise;
+    await db.run(`INSERT INTO \`${survey}\` (\`username\`) VALUES (?)`, username);
+}
+
+
+// Sets a users response to a question
+async function setReponse(survey, username, response) {
+    const db = await dbPromise;
+    await db.run(`UPDATE \`${survey}\` SET \`${response.question}\` = ? WHERE \`username\` = ?;`, response.answer, username);
+}
+
+
+// Gets a users responses
+async function getResponses(survey, username) {
+    const db = await dbPromise;
+    return await db.get(`SELECT * FROM \`${survey}\` WHERE \`username\` == ?;`, username);
+}
+
+
+// Gets all completed responses
+async function getCompletedResponses(survey) {
+    const db = await dbPromise;
+    return await db.all(`SELECT * FROM \`${survey}\` WHERE \`completed\`;`);
+}
+
+
 module.exports = {
 
     // Stores a response in the database
-    setResponse: async (survey, username, responses) => {
-        const db = await dbPromise;
-        responses = sortResponses(responses);
-        await db.run(`INSERT INTO \`${survey.name}\` VALUES (?, ${responses.map(_ => '?').join(', ')});`, [username, ...responses]);
+    setResponse: async (survey, username, response) => {
+        if (!hasResponded(survey, username))
+            await createResponse(survey, username);
+        await setReponse(survey, username, response);
+    },
+
+
+    // Gets a users responses to a survey
+    getResponses: async (survey, username) => {
+        return await getResponses(survey, username);
     },
 
 
     // Checks if the user has already responded to a survey
-    hasRespomded: async (survey, username) => {
-        const db = await dbPromise;
-        return await !typeof db.get(`SELECT * FROM \`${survey.name}\` WHERE \`username\` == ?;`, username) == 'undefined';
+    hasResponded: async (survey, username) => {
+        return await !typeof getReponses(survey, username) == 'undefined';
     },
 
-
-    // Returns all responses to a survey
-    getReponse: async (survey) => {
+    
+    // Returns all completed responses to a survey
+    getCompletedResponses: async (survey) => {
         const db = await dbPromise;
-        return {};
+        var responses = [];
+        (await getCompletedResponses(survey)).forEach((result) => {
+            delete result.username;
+            delete result.completed;
+            responses.push(result);
+        });
+        return responses;
     }
 }
+

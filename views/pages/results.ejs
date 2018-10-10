@@ -11,8 +11,9 @@
     <section class="d-flex flex-column justify-content-center" style="height: 100vh">
         <div class="">
             <div class="jumbotron">
-                <h1 class="display-4"><%= survey_name %></h1>
-                <p><%= survey_description %></p>
+                <h1 class="display-4"><%= survey_name %> - Results</h1>
+                <!-- TODO HANDLE RESPONSES -->
+                <code><%= JSON.stringify(responses); %></code>
             </div>
         </div>
     </section>

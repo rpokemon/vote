@@ -103,10 +103,10 @@ module.exports = (express) => {
             if (!req.session.auth.is_mod && survey.requires_mod)
                 return genError(req, res, 401, 'Unauthorized', 'You are not authorized to access this survey.');
 
-            // TODO: Handle if the user has already voted
-            if (!true) {
-                return genError(req, res, 403, 'Access Denied', 'You have already voted on this survey.');
-            }
+            // TODO: Handle if the user has already voted - DO WE NEED THIS?
+            //if (!true) {
+            //    return genError(req, res, 403, 'Access Denied', 'You have already voted on this survey.');
+            //}
 
             survey.auth = req.session.auth;
         }
@@ -134,11 +134,11 @@ module.exports = (express) => {
         if (false)
             return res.status(400).end();
 
-        // 409 CONFLICT: User has already responded to the survey
-        if (await db.hasRespomded(survey, req.session.auth.username))
-            return res.status(409).end();
+        // 409 CONFLICT: User has already responded to the survey - DO WE NEED THIS?
+        //if (await db.hasCompletedResponse(survey, req.session.auth.username))
+        //    return res.status(409).end();
 
-        // 409 CONFLICT: Response contains wrong number of questions or responses aren't what we expect, indicating tomfoolery.
+        // 409 CONFLICT: ResponseS aren't what we expect, indicating tomfoolery.
         if (false)
             return res.status(409).end();
 
@@ -150,25 +150,37 @@ module.exports = (express) => {
         // text: single string response, long form
 
         // Store results for vote from response
-        await db.setResponse(survey, req.session.auth.username, req.body.responses);
+        await db.setResponse(survey, req.session.auth.username, req.body.response);
 
         res.status(200).end();
     });
 
 
     // GET /vote/somevotename/results
-    express.get('/vote/:vote_name/results', (req, res) => {
+    express.get('/vote/:vote_name/results', async (req, res) => {
 
-        var survey = {};
+        // Handle if survey doesn't exist
+        if (!fs.existsSync(`${__dirname}/surveys/${req.params.vote_name}.json`))
+            return genError(req, res, 404, 'Survey not found', 'The survey you have specified could not be found.');
 
-        // TODO: determine if authentication is required (e.g. for mod vote)
-
-        // TODO: get results object for vote
-        survey.survey_name = "some survey name";
-        survey.survey_description = "some longform survey description";
+        // Load the survey config
+        var survey = JSON.parse(fs.readFileSync(`${__dirname}/surveys/${req.params.vote_name}.json`, 'utf-8'));
         survey.path = req.path;
 
-        // TBD: results object format
+        // TODO: determine if results are accessible (e.g. survey finished)
+        if (false)
+            return genError(req, res, 401, 'Unauthorized', 'You are not authorized to access this page.');
+
+        // TODO: determine if authentication is required (e.g. for mod vote)
+        if (false)
+            return genError(req, res, 401, 'Unauthorized', 'You are not authorized to access this page.');
+
+        // Get results array for vote
+        survey.responses = await db.getCompletedResponses(req.params.vote_name);
+
+        // survey.responses is an array of response onjects
+        // response objects containing keys of format q{id}
+
         res.status(200).render('pages/results', survey);
     });
 
