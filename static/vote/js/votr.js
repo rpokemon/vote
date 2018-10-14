@@ -19,6 +19,11 @@ const responseSelectorTable = {
 };
 
 $(document).ready(function() {
+
+    var numQs = $('main').find('section').length - 1;
+    var qPct = 100.0 / numQs;
+    var currPct = 0.0;
+
     var activeQuestionPanel = $('section:first-of-type');
 
     // at presently only checks that a value is set
@@ -51,11 +56,17 @@ $(document).ready(function() {
     });
 
     $('.next-section').click(function(e) {
+        if (currPct < 100) currPct += qPct;
+        $('#progress').animate({ width: `${currPct}%` }, 1000);
+
         activeQuestionPanel = $(this).parents('section').next();
         $('body').scrollTo(activeQuestionPanel, 1000, { easing: 'easeInOutQuint' });
     });
 
     $('.prev-section').click(function(e) {
+        if (currPct > 0) currPct -= qPct;
+        $('#progress').animate({ width: `${currPct}%` }, 1000);
+
         activeQuestionPanel = $(this).parents('section').prev();        
         $('body').scrollTo(activeQuestionPanel, 1000, { easing: 'easeInOutQuint' });
     });
