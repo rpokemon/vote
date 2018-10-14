@@ -36,15 +36,11 @@
                 <button id="question_back_<%= key %>" type="button" class="btn btn-outline-secondary px-5 prev-section">Back</button>
                 <% } %>
 
-                <% if (!vote.required && !vote.last) { %> 
+                <% if (!vote.required) { %> 
                 <button id="question_skip_<%= key %>" type="button" data-key="<%= key %>" class="btn btn-outline-primary px-5 next-section skip-response">Skip</button>
                 <% } %>
-                
-                <% if (vote.last) { %>
-                <button id="question_next_<%= key %>" type="button" data-key="<%= key %>" class="btn btn-success px-5 record-response send-survey-response" disabled>Submit</button>
-                <% } else { %>
+
                 <button id="question_next_<%= key %>" type="button" data-key="<%= key %>" class="btn btn-primary px-5 next-section record-response" disabled>Next</button>
-                <% } %>
             </div>
         </div>
     </div>

@@ -1,46 +1,46 @@
-var submission_data =  { responses: { } };
+const getForm = (key) =>
+    `#question_form_${key}`;
 
-const setResponse = (id, value) => {
-    submission_data.responses[`q${id}`] = value;
+const getSelector = (key) =>
+    $(`${getForm(key)} >:first-child`).attr('data-selector');
+
+const getResponseType = (key) =>
+    $(getForm(key)).attr('data-response-type');
+
+const getDisplayType = (key) =>
+    $(getForm(key)).attr('data-display-as');
+
+const respond = (key, ans, path) => {
+    var responseObject = { q: key, a: ans };
+    $.ajax({
+        url: `${path}response`,
+        type: 'POST',
+        data: JSON.stringify(responseObject),
+        contentType: 'application/json; charset=utf-8',
+        success: (data, text, jqXHR) => console.log(`Server accepted response for q${key}`),
+        error: (jqXHR, textStatus, errorThrown) => console.log(`Server rejected response for q${key} - ${errorThrown}`)
+    });
 };
 
-const responseSelectorTable = {
-    bool: {
-        radio: 'input[type="radio"]:checked',
-        dropdown: 'select',
-        default: 'input[type="radio"]:checked',
-    },
-    multi: {
-    },
-    int: {
-    },
-    text: {
+const canMoveNextQuestion = (obj) => {
+    var key = obj.attr('data-key');
+    var buttonId = `#question_next_${key}`;
+    var response = $(`${getForm(key)} ${getSelector(key)}`).val();
+
+    if (response  !== undefined) {
+        $(buttonId).removeAttr('disabled');
+    } else {
+        $(buttonId).attr('disabled');
     }
-};
+}
 
 $(document).ready(function() {
+
+    const path = $('body').attr('data-path');
+    const numQs = $('main').find('section').length - 1;
+    const qPct = 100.0 / numQs;
+    var currentProgressValue = 0.0;
     var activeQuestionPanel = $('section:first-of-type');
-
-    // at presently only checks that a value is set
-    const canMoveNextQuestion = (obj) => {
-        var key = obj.attr('data-key');
-        var form = `#question_form_${key}`;
-
-        var resp_type = $(form).attr('data-response-type');
-        var display_as = $(form).attr('data-display-as');
-        var selector = responseSelectorTable[resp_type][display_as];
-
-        var response = $(`${form} ${selector}`).val();
-        var has_response = response  !== undefined;
-
-        var button_id = `#question_next_${key}`;
-        if (has_response) $(button_id).removeAttr('disabled');
-        else $(button_id).attr('disabled');
-    }
-
-    $('.question_form').ready(function(e) {
-        canMoveNextQuestion($(this));
-    });
 
     $('.question_form').click(function(e) {
         canMoveNextQuestion($(this));
@@ -51,62 +51,60 @@ $(document).ready(function() {
     });
 
     $('.next-section').click(function(e) {
+        if (currentProgressValue < 100) currentProgressValue += qPct;
+        $('#progress').css('width', `${currentProgressValue}%`);
+
         activeQuestionPanel = $(this).parents('section').next();
         $('body').scrollTo(activeQuestionPanel, 1000, { easing: 'easeInOutQuint' });
     });
 
     $('.prev-section').click(function(e) {
+        if (currentProgressValue > 0) currentProgressValue -= qPct;
+        $('#progress').css('width', `${currentProgressValue}%`);
+
         activeQuestionPanel = $(this).parents('section').prev();        
         $('body').scrollTo(activeQuestionPanel, 1000, { easing: 'easeInOutQuint' });
     });
 
     $('.record-response').click(function(e) {
         var key = $(this).attr('data-key');
-        var form = `#question_form_${key}`;
 
-        var resp_type = $(form).attr('data-response-type');
-        var display_as = $(form).attr('data-display-as');
-        var selector = responseSelectorTable[resp_type][display_as];
+        var respType = getResponseType(key);
+        var displayAs = getDisplayType(key);
+        var selector = getSelector(key);
 
         if (!selector)
         {
-            console.log(`Warning! No response selector defined for '${resp_type}' as '${display_as}'`);
+            console.log(`Warning! No response selector defined for '${respType}' as '${displayAs}'`);
             setResponse(key, 'ERR_NO_SELECTOR');
             return;
         }
 
-        var response = $(`${form} ${selector}`).val();
+        var response = $(`${getForm(key)} ${selector}`).val();
 
         // response should only ever be undefined in the event that user clicks next having not provided a response
         // note that, when skipping, we insert null instead
         if (response === undefined)
             response = 'ERR_REQUIRED_RESPONSE_NOT_GIVEN';
 
-        setResponse(key, response);
+        respond(key, response, path);
     });
 
     $('.skip-response').click(function(e) {
         var key = $(this).attr('data-key');
-        setResponse(key, null);
+        respond(key, null, path);
     });
 
-    $('.send-survey-response').click(function(e) {
-
-        console.log(JSON.stringify(submission_data.responses));
-
+    $('.finalise-survey').click(function(e) {
         $.ajax({
-            url: '/vote/ui_test/response',
+            url: `${path}complete`,
             type: 'POST',
-            data: JSON.stringify(submission_data),
-            contentType: "application/json; charset=utf-8",
-
-            success: (data, textStatus, jqXHR) => {
+            success: () => {
                 $('#submissionResponseModalTitle').html("Responses Received!");
                 $('#submissionResponseModalMessage').html("That's that, all done! We've received your responses to this survey and they have been stored securely. For security reasons your session will be ended.");
                 $('#submissionResponseModal').modal('show');
             },
-
-            error: (jqXHR, textStatus, errorThrown) => {
+            error: (jqXHR, textStatus) => {
                 $('#submissionResponseModalTitle').html("Something Went Wrong...");
 
                 var errStr = "";

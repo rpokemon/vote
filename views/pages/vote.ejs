@@ -4,9 +4,15 @@
 <head>
     <% include ../partials/head %>
 </head>
-<body class="container">
+<body class="container" data-path="<%= path %>">
 
-<% include ../partials/header %>
+<header class="fixed-top">
+    <% include ../partials/header %>
+
+    <div class="progress" style="height: 2px;">
+        <div class="progress-bar" id="progress" role="progressbar" style="width: 0%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+    </div>
+</header>
 
 <main>
     <section id="start" class="d-flex flex-column justify-content-center" style="height: 100vh">
@@ -23,6 +29,7 @@
             <% include ../partials/authentication %>
             <% } else { %>
             <!-- get started UI -->
+                <label class="mb-2 mr-sm-2">There are <%= questions.length %> questions in this survey. Ready?</label>
                 <button type="button" class="btn btn-primary px-5 mb-2 mr-sm-2 next-section">Let's Get Started!</button>
             <% } %>
             </form>
@@ -32,13 +39,25 @@
     <!-- user already auth OR survey auth not req. -->
     <% if (!require_auth) { %>
         <% questions.forEach((vote, key, arr) => { %>
-            <% if (Object.is(arr.length - 1, key)) { %>
-                <% vote.last = true; %>
-            <% } else if (Object.is(0, key)) { %>
+            <% if (Object.is(0, key)) { %>
                 <% vote.first = true; %>
             <% } %>
             <% include ../partials/question.ejs vote key %>
         <% }); %>
+
+        <section id="finish" class="d-flex flex-column justify-content-center" style="height: 100vh">
+            <div class="">
+                <div class="jumbotron">
+                    <h1 class="display-4">All Done!</h1>
+                    <p>You have answered all the questions and saved Meltan from impending doom. The whole of r/Pokemon thanks you!</p>
+                </div>
+            </div>
+            <div class="flex-column">
+                <form class="form-inline justify-content-center">
+                    <button type="button" class="btn btn-success px-5 mb-2 mr-sm-2 finalise-survey">Submit My Answers!</button>
+                </form>
+            </div>
+        </section>
     <% } %>
 
 </main>
