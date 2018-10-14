@@ -142,15 +142,21 @@ module.exports = (express) => {
         if (false)
             return res.status(409).end();
 
-        // req.body.responses is an object containing keys of format q{id}
-        // where id is the question number. values are in format:-
-        // boolean: single string response
-        // multi: array of string responses
-        // numeric: single integer response
-        // text: single string response, long form
+        // req.body has two properties, q and a
+        // q is the question number, zero indexed
+        // a is the given response, which should be checked for consistency with the expected ranges
+        var q = req.body.q;
+        var a = req.body.a;
 
         // Store results for vote from response
         await db.setResponse(survey, req.session.auth.username, req.body.response);
+
+        res.status(200).end();
+    });
+
+    express.post('/vote/:vote_name/complete', async (req, res) => {
+        // TODO set complete flag
+        // send 409 if already set
 
         res.status(200).end();
     });
