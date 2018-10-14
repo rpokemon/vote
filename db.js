@@ -52,6 +52,11 @@ async function setReponse(survey, username, response) {
     await db.run(`UPDATE \`${survey}\` SET \`${response.question}\` = ? WHERE \`username\` = ?;`, response.answer, username);
 }
 
+// Sets a response to completed
+async function setCompletedResponse(survey, username) {
+    const db = await dbPromise;
+    await db.run(`update \`${survey}\ SET \`completed\` = 1 WHERE \`username\` = ?;`, username)
+}
 
 // Gets a users responses
 async function getResponses(survey, username) {
@@ -88,10 +93,9 @@ module.exports = {
         return await !typeof getReponses(survey, username) == 'undefined';
     },
 
-    
+
     // Returns all completed responses to a survey
     getCompletedResponses: async (survey) => {
-        const db = await dbPromise;
         var responses = [];
         (await getCompletedResponses(survey)).forEach((result) => {
             delete result.username;
@@ -99,6 +103,12 @@ module.exports = {
             responses.push(result);
         });
         return responses;
+    },
+
+    
+    // Sets a users response to completed
+    setCompletedResponse: async (survey, username) => {
+        await setCompletedResponse(survey, username);
     }
 }
 

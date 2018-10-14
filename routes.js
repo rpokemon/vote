@@ -138,7 +138,7 @@ module.exports = (express) => {
         //if (await db.hasCompletedResponse(survey, req.session.auth.username))
         //    return res.status(409).end();
 
-        // 409 CONFLICT: ResponseS aren't what we expect, indicating tomfoolery.
+        // 409 CONFLICT: Response isn't what we expect, indicating tomfoolery.
         if (false)
             return res.status(409).end();
 
