@@ -1,3 +1,4 @@
+<div data-selector="input[type='checkbox']:checked">
 <% vote.response_scale.forEach((response, index) => { %>
     <div class="form-check mb-2">
         <% id= `question_${key}_${index}`; %>
@@ -7,3 +8,4 @@
         </label>
     </div>
 <% }); %>
+</div>

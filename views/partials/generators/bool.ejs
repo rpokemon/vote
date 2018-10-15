@@ -6,6 +6,7 @@
 <% }); %>
 </select>
 <% break; case "radio": default: %>
+<div data-selector="input[type='radio']:checked">
 <% vote.response_scale.forEach((response, index) => { %>
 <div class="form-check mb-2" data-selector="input[type='radio']:checked">
     <% id= `question_${key}_${index}`; %>
@@ -14,4 +15,6 @@
         <%= response %>
     </label>
 </div>
-<% }); break; } %>
+<% }); %>
+</div>
+<% break; } %>

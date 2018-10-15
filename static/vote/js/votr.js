@@ -80,7 +80,22 @@ $(document).ready(function() {
             return;
         }
 
-        var response = $(`${getForm(key)} ${selector}`).val();
+        var selection = $(`${getForm(key)} ${selector}`);
+        var response = undefined;
+        switch (selection.length) {
+            case 0:
+                console.log("Warning, no response selected where one was expected - server will reject this!");
+                break;
+            case 1:
+                response = selection.val();
+                break;
+            default:
+                response = [];
+                selection.each((e,o) => {
+                    response.push(o.value);
+                });
+                break;
+        }
 
         // response should only ever be undefined in the event that user clicks next having not provided a response
         // note that, when skipping, we insert null instead
