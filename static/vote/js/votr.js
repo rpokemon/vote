@@ -13,7 +13,7 @@ const getDisplayType = (key) =>
 const respond = (key, ans, path) => {
     var responseObject = { q: key, a: ans };
     $.ajax({
-        url: `${path}response`,
+        url: `${path}/response`,
         type: 'POST',
         data: JSON.stringify(responseObject),
         contentType: 'application/json; charset=utf-8',
@@ -42,12 +42,8 @@ $(document).ready(function() {
     var currentProgressValue = 0.0;
     var activeQuestionPanel = $('section:first-of-type');
 
-    $('.question_form').click(function(e) {
-        canMoveNextQuestion($(this));
-    });
-
-    $('.question_form').keyup(function(e) {
-        canMoveNextQuestion($(this));
+    $('.question_input').change(function(e) {
+        canMoveNextQuestion($(this).parents('.question_form').first());
     });
 
     $('.next-section').click(function(e) {
@@ -112,7 +108,7 @@ $(document).ready(function() {
 
     $('.finalise-survey').click(function(e) {
         $.ajax({
-            url: `${path}complete`,
+            url: `${path}/complete`,
             type: 'POST',
             success: () => {
                 $('#submissionResponseModalTitle').html("Responses Received!");

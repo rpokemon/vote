@@ -2,7 +2,7 @@
 <% vote.response_scale.forEach((response, index) => { %>
     <div class="form-check mb-2">
         <% id= `question_${key}_${index}`; %>
-        <input class="form-check-input" type="checkbox" name="question_<%= key %>" id="<%= id %>" value="<%= response %>">
+        <input class="form-check-input question_input" type="checkbox" name="question_<%= key %>" id="<%= id %>" value="<%= response %>">
         <label class="form-check-label" for="<%= id %>">
             <%= response %>
         </label>

@@ -1,16 +1,18 @@
 <% switch(vote.display_as) { case "dropdown": %>
-<select class="form-control form-control-lg" name="question_<%= key %>" data-selector="select">
+<div data-selector="select">
+<select class="form-control form-control-lg question_input" name="question_<%= key %>">
 <% vote.response_scale.forEach((response, index) => { %>
 <% id = `question_${key}_${index}`; %>
     <option id="<%= id %>"><%= response %></option>
 <% }); %>
 </select>
+</div>
 <% break; case "radio": default: %>
 <div data-selector="input[type='radio']:checked">
 <% vote.response_scale.forEach((response, index) => { %>
-<div class="form-check mb-2" data-selector="input[type='radio']:checked">
+<div class="form-check mb-2">
     <% id= `question_${key}_${index}`; %>
-    <input class="form-check-input" type="radio" name="question_<%= key %>" id="<%= id %>" value="<%= response %>" />
+    <input class="form-check-input question_input" type="radio" name="question_<%= key %>" id="<%= id %>" value="<%= response %>" />
     <label class="form-check-label" for="<%= id %>">
         <%= response %>
     </label>
