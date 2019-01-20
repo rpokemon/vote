@@ -29,8 +29,6 @@ function redirect(req, res) {
 
 // Function validates a response to a question
 function validate_response(question, response) {
-    console.log(response);
-
     switch (question.response_type) {
 
         case 'bool':

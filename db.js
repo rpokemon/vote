@@ -49,14 +49,14 @@ async function createResponse(survey, username) {
 // Sets a users response to a question
 async function setReponse(survey, username, question, answer) {
     const db = await dbPromise;
-    await db.run(`UPDATE \`${survey.name}\` SET \`q${question}\` = ? WHERE \`username\` = ?;`, answer, username);
+    await db.run(`UPDATE \`${survey.name}\` SET \`q${question}\` = ? WHERE \`username\` = ?;`, answer.toString(), username);
 }
 
 
 // Sets a response to completed
 async function setCompletedResponse(survey, username) {
     const db = await dbPromise;
-    await db.run(`update \`${survey.name}\ SET \`completed\` = 1 WHERE \`username\` = ?;`, username)
+    await db.run(`UPDATE \`${survey.name}\ SET \`completed\` = 1 WHERE \`username\` = ?;`, username)
 }
 
 
@@ -69,7 +69,7 @@ async function getResponses(survey, username) {
 
 // Checks if the user has responded to a survey
 async function hasResponded(survey, username) {
-    return await !typeof getResponses(survey, username) == 'undefined';
+    return await getResponses(survey, username) != undefined;
 }
 
 
@@ -83,10 +83,11 @@ async function getCompletedResponses(survey) {
 module.exports = {
 
     // Stores a response in the database
-    setResponse: async (survey, username, response) => {
-        if (!hasResponded(survey, username))
+    setResponse: async (survey, username, question, answer) => {
+        var userHasResponded = await hasResponded(survey, username); 
+        if (!userHasResponded)
             await createResponse(survey, username);
-        await setReponse(survey, username, response);
+        await setReponse(survey, username, question, answer);
     },
 
 
@@ -106,7 +107,6 @@ module.exports = {
         if (!hasResponded(survey, username))
             return false;
         var response = await getResponses(survey, username);
-        console.log(response);
         return false;
     },
 
