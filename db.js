@@ -42,33 +42,41 @@ fs.readdirSync(`${__dirname}/surveys`).forEach(async file => {
 // Creates an entry in the database
 async function createResponse(survey, username) {
     const db = await dbPromise;
-    await db.run(`INSERT INTO \`${survey}\` (\`username\`) VALUES (?)`, username);
+    await db.run(`INSERT INTO \`${survey.name}\` (\`username\`) VALUES (?)`, username);
 }
 
 
 // Sets a users response to a question
-async function setReponse(survey, username, response) {
+async function setReponse(survey, username, question, answer) {
     const db = await dbPromise;
-    await db.run(`UPDATE \`${survey}\` SET \`${response.question}\` = ? WHERE \`username\` = ?;`, response.answer, username);
+    await db.run(`UPDATE \`${survey.name}\` SET \`q${question}\` = ? WHERE \`username\` = ?;`, answer, username);
 }
+
 
 // Sets a response to completed
 async function setCompletedResponse(survey, username) {
     const db = await dbPromise;
-    await db.run(`update \`${survey}\ SET \`completed\` = 1 WHERE \`username\` = ?;`, username)
+    await db.run(`update \`${survey.name}\ SET \`completed\` = 1 WHERE \`username\` = ?;`, username)
 }
+
 
 // Gets a users responses
 async function getResponses(survey, username) {
     const db = await dbPromise;
-    return await db.get(`SELECT * FROM \`${survey}\` WHERE \`username\` == ?;`, username);
+    return await db.get(`SELECT * FROM \`${survey.name}\` WHERE \`username\` == ?;`, username);
+}
+
+
+// Checks if the user has responded to a survey
+async function hasResponded(survey, username) {
+    return await !typeof getResponses(survey, username) == 'undefined';
 }
 
 
 // Gets all completed responses
 async function getCompletedResponses(survey) {
     const db = await dbPromise;
-    return await db.all(`SELECT * FROM \`${survey}\` WHERE \`completed\`;`);
+    return await db.all(`SELECT * FROM \`${survey.name}\` WHERE \`completed\`;`);
 }
 
 
@@ -88,9 +96,18 @@ module.exports = {
     },
 
 
-    // Checks if the user has already responded to a survey
+    // Checks if the user has responded to a survey
     hasResponded: async (survey, username) => {
-        return await !typeof getReponses(survey, username) == 'undefined';
+        return await hasResponded(survey, username);
+    },
+
+    // Checks if the user has completed their response
+    hasCompletedResponse: async (survey, username) => {
+        if (!hasResponded(survey, username))
+            return false;
+        var response = await getResponses(survey, username);
+        console.log(response);
+        return false;
     },
 
 
@@ -105,7 +122,7 @@ module.exports = {
         return responses;
     },
 
-    
+
     // Sets a users response to completed
     setCompletedResponse: async (survey, username) => {
         await setCompletedResponse(survey, username);

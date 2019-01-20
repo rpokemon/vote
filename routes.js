@@ -27,6 +27,59 @@ function redirect(req, res) {
 }
 
 
+// Function validates a response to a question
+function validate_response(question, response) {
+    console.log(response);
+
+    switch (question.response_type) {
+
+        case 'bool':
+            if (!question.response_scale.includes(response))
+                return false;
+            break;
+
+        case 'multi':
+            response.forEach(element => {
+                if (!question.response_scale.includes(element))
+                    return false;
+            });
+            break;
+
+        case 'int':
+            if (response < question.response_scale[0] || response > question.response_scale[1])
+                return false;
+            break;
+
+        case 'text':
+            var min_size = question.response_scale[0].slice(0, question.response_scale[0].length - 1);
+            switch (question.response_scale[0][question.response_scale[0].length - 1]) {
+                case 'w':
+                    if (response.split(' ').length < min_size)
+                        return false;
+                    break;
+                case 'c':
+                    if (response.length < min_size)
+                        return false;
+                    break;
+            }
+
+            var max_size = question.response_scale[1].slice(0, question.response_scale[1].length - 1);
+            switch (question.response_scale[1][question.response_scale[1].length - 1]) {
+                case 'w':
+                    if (response.split(' ').length > max_size)
+                        return false;
+                    break;
+                case 'c':
+                    if (response.length > max_size)
+                        return false;
+                    break;
+            }
+            break;
+    }
+
+    return true;
+}
+
 module.exports = (express) => {
 
     // GET /
@@ -130,34 +183,54 @@ module.exports = (express) => {
         if (authentication_enabled && !req.session.auth)
             return res.status(401).end();
 
-        // 400 BAD REQUEST: Malformed or non-existent response, probably a UI-bug
-        if (false)
-            return res.status(400).end();
-
-        // 409 CONFLICT: User has already responded to the survey - DO WE NEED THIS?
-        //if (await db.hasCompletedResponse(survey, req.session.auth.username))
-        //    return res.status(409).end();
-
-        // 409 CONFLICT: Response isn't what we expect, indicating tomfoolery.
-        if (false)
-            return res.status(409).end();
-
         // req.body has two properties, q and a
         // q is the question number, zero indexed
         // a is the given response, which should be checked for consistency with the expected ranges
         var q = req.body.q;
         var a = req.body.a;
 
-        // Store results for vote from response
-        await db.setResponse(survey, req.session.auth.username, req.body.response);
+        // 400 BAD REQUEST: Malformed or non-existent response, probably a UI-bug
+        if (q == null | a == null)
+            return res.status(400).end();
 
+        // 409 CONFLICT: Response isn't what we expect, indicating tomfoolery.
+        if (q < 0 || q >= survey.questions.length)
+            return res.status(409).end();
+
+        if (!validate_response(survey.questions[q], a))
+            return res.status(409).end();
+
+        // Store results for vote from response
+        await db.setResponse(survey, req.session.auth.username, q, a);
         res.status(200).end();
     });
 
     express.post('/vote/:vote_name/complete', async (req, res) => {
-        // TODO set complete flag
-        // send 409 if already set
 
+        // 400 BAD REQUEST: Survey does not exist
+        if (!fs.existsSync(`${__dirname}/surveys/${req.params.vote_name}.json`))
+            return res.status(400).end();
+
+        // Get the survey
+        var survey = JSON.parse(fs.readFileSync(`${__dirname}/surveys/${req.params.vote_name}.json`, 'utf-8'));
+        survey.name = req.params.vote_name;
+
+        // 401 UNAUTHORIZED: User hasn't gone through account verification
+        if (authentication_enabled && !req.session.auth)
+            return res.status(401).end();
+
+        // 409 CONFLICT: User has alreay completed the survey
+        if (await db.hasCompletedResponse(survey, req.session.auth.username))
+            return res.status(409).end();
+
+        // 409 CONFLICT: User has not completed all required questions
+        responses = await db.getResponses(survey, req.session.auth.username)
+        survey.questions.forEach(function (question, index) {
+            if (question.required && responses[`q${index}`])
+                return res.status(409).end();
+        });
+
+        await db.setCompletedResponse(survey, req.session.auth.username);
         res.status(200).end();
     });
 
