@@ -56,7 +56,7 @@ async function setReponse(survey, username, question, answer) {
 // Sets a response to completed
 async function setCompletedResponse(survey, username) {
     const db = await dbPromise;
-    await db.run(`UPDATE \`${survey.name}\ SET \`completed\` = 1 WHERE \`username\` = ?;`, username)
+    await db.run(`UPDATE \`${survey.name}\` SET \`completed\` = 1 WHERE \`username\` = ?;`, username)
 }
 
 

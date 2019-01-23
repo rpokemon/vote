@@ -2,3 +2,33 @@ body {
     max-width: 768px;
     overflow: hidden;
 }
+
+/* FOR TEMP NUMERIC INPUT */
+
+input[type="range"] + output { 
+    position: absolute;
+    background: #007bff;
+    width: 40px; 
+    height: 30px; 
+    text-align: center; 
+    color: #fff; 
+    border-radius: 10px; 
+    display: inline-block; 
+    bottom: 175%;
+    left: 0;
+    margin-left: -1%;
+  }
+
+  input[type="range"] + output:after { 
+    content: "";
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-top: 10px solid #007bff;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    margin-top: -1px;
+  }

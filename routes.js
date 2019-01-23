@@ -37,10 +37,15 @@ function validate_response(question, response) {
             break;
 
         case 'multi':
-            response.forEach(element => {
-                if (!question.response_scale.includes(element))
-                    return false;
-            });
+            if (Array.isArray(response)) {
+                response.forEach(element => {
+                    if (!question.response_scale.includes(element))
+                        return false;
+                });
+            }
+            else if (!question.response_scale.includes(response))
+                return false;
+
             break;
 
         case 'int':
@@ -224,7 +229,7 @@ module.exports = (express) => {
         // 409 CONFLICT: User has not completed all required questions
         responses = await db.getResponses(survey, req.session.auth.username)
         survey.questions.forEach(function (question, index) {
-            if (question.required && responses[`q${index}`])
+            if (question.required && responses[`q${index}`] == null)
                 return res.status(409).end();
         });
 

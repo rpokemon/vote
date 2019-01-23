@@ -1,1 +1,10 @@
-<h1 class="badge badge-warning">NOTICE: Textual response generator defined but not implemented</h1>
+<div data-selector="textarea">
+    <div class="form-check mb-2">
+        <% min= vote.response_scale[0]; max= vote.response_scale[1] %>
+
+        <textarea class="form-control question_input" name="question_<%= key %>"></textarea>
+
+    </div>
+</div>
+
+<h1 class="badge badge-warning">NOTICE: Rudimentary textual response generator in use</h1>

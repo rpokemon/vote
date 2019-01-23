@@ -27,14 +27,14 @@ const canMoveNextQuestion = (obj) => {
     var buttonId = `#question_next_${key}`;
     var response = $(`${getForm(key)} ${getSelector(key)}`).val();
 
-    if (response  !== undefined) {
+    if (response !== undefined) {
         $(buttonId).removeAttr('disabled');
     } else {
         $(buttonId).attr('disabled');
     }
 }
 
-$(document).ready(function() {
+$(document).ready(function () {
 
     const path = $('body').attr('data-path');
     const numQs = $('main').find('section').length - 1;
@@ -42,11 +42,27 @@ $(document).ready(function() {
     var currentProgressValue = 0.0;
     var activeQuestionPanel = $('section:first-of-type');
 
-    $('.question_input').change(function(e) {
+    $('.question_input').change(function (e) {
         canMoveNextQuestion($(this).parents('.question_form').first());
     });
 
-    $('.next-section').click(function(e) {
+    // For temp numeric input
+    $('input[type="range"]').change(function (e) {
+        var el = $(this);
+        var width = el.width();
+        var newPoint = (el.val() - el.attr('min')) / (el.attr("max") - el.attr("min"));
+
+        if (newPoint < 0) leftOffset = 0;
+        else if (newPoint > 1) leftOffset = width;
+        else leftOffset = width * newPoint;
+
+        el.next("output").css({
+            left: leftOffset + 5,
+        }).text(el.val());
+
+    }).trigger('change');
+
+    $('.next-section').click(function (e) {
         if (currentProgressValue < 100) currentProgressValue += qPct;
         $('#progress').css('width', `${currentProgressValue}%`);
 
@@ -54,23 +70,22 @@ $(document).ready(function() {
         $('body').scrollTo(activeQuestionPanel, 1000, { easing: 'easeInOutQuint' });
     });
 
-    $('.prev-section').click(function(e) {
+    $('.prev-section').click(function (e) {
         if (currentProgressValue > 0) currentProgressValue -= qPct;
         $('#progress').css('width', `${currentProgressValue}%`);
 
-        activeQuestionPanel = $(this).parents('section').prev();        
+        activeQuestionPanel = $(this).parents('section').prev();
         $('body').scrollTo(activeQuestionPanel, 1000, { easing: 'easeInOutQuint' });
     });
 
-    $('.record-response').click(function(e) {
+    $('.record-response').click(function (e) {
         var key = $(this).attr('data-key');
 
         var respType = getResponseType(key);
         var displayAs = getDisplayType(key);
         var selector = getSelector(key);
 
-        if (!selector)
-        {
+        if (!selector) {
             console.log(`Warning! No response selector defined for '${respType}' as '${displayAs}'`);
             setResponse(key, 'ERR_NO_SELECTOR');
             return;
@@ -87,7 +102,7 @@ $(document).ready(function() {
                 break;
             default:
                 response = [];
-                selection.each((e,o) => {
+                selection.each((e, o) => {
                     response.push(o.value);
                 });
                 break;
@@ -101,12 +116,12 @@ $(document).ready(function() {
         respond(key, response, path);
     });
 
-    $('.skip-response').click(function(e) {
+    $('.skip-response').click(function (e) {
         var key = $(this).attr('data-key');
         respond(key, null, path);
     });
 
-    $('.finalise-survey').click(function(e) {
+    $('.finalise-survey').click(function (e) {
         $.ajax({
             url: `${path}/complete`,
             type: 'POST',
@@ -119,7 +134,7 @@ $(document).ready(function() {
                 $('#submissionResponseModalTitle').html("Something Went Wrong...");
 
                 var errStr = "";
-                switch(jqXHR.status) {
+                switch (jqXHR.status) {
                     case 400:
                         errStr = "The response table was incorrectly formed. This likely indicates a bug in the software and should be reported to the r/Pokemon team (400 BAD REQUEST).";
                         break;
@@ -128,6 +143,7 @@ $(document).ready(function() {
                         break;
                     case 409:
                         errStr = "The response table was too short, too long, or contained response entries that do not match the required type or format (409 CONFLICT).";
+                        break
                     default:
                         errStr = `Unknown failure (${jqXHR.status} ${textStatus.toUpperCase()}).`;
                         break;
@@ -138,7 +154,7 @@ $(document).ready(function() {
             }
         })
     });
-    
+
     var resizeTimeout;
     $(window).resize(() => {
         clearTimeout(resizeTimeout);
