@@ -1,4 +1,6 @@
-<label class="mb-2 mr-sm-2">First, we need to verify your <%= auth_type %> account: </label>
-<a href='<%= auth_url %>'>
-    <button type="button" class="mb-2 mr-sm-2 btn btn-primary">Verify</button>
+<label class="mb-2 mr-sm-2">First, we need to to sign in...  </label>
+<% auth_types.forEach((auth_type, index) => { %>
+<a href='<%= auth_urls[index] %>'>
+    <button type="button" class="mb-2 mr-sm-2 btn btn-primary">Sign in with <%= auth_type %></button>
 </a>
+<% }); %>

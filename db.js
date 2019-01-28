@@ -20,6 +20,8 @@ async function createTable(survey) {
     // Create the table
     await db.run(`CREATE TABLE IF NOT EXISTS \`${survey.name}\` (
         \`username\` TEXT NOT NULL UNIQUE,
+        \`auth_type\` TEXT NOT NULL,
+
         ${questions}
         \`completed\` INTEGER NOT NULL DEFAULT 0,
         PRIMARY KEY(\`username\`)
@@ -40,9 +42,9 @@ fs.readdirSync(`${__dirname}/surveys`).forEach(async file => {
 
 
 // Creates an entry in the database
-async function createResponse(survey, username) {
+async function createResponse(survey, username, auth_type) {
     const db = await dbPromise;
-    await db.run(`INSERT INTO \`${survey.name}\` (\`username\`) VALUES (?)`, username);
+    await db.run(`INSERT INTO \`${survey.name}\` (\`username\`, \`auth_type\`) VALUES (?, ?)`, username, auth_type);
 }
 
 
@@ -83,10 +85,10 @@ async function getCompletedResponses(survey) {
 module.exports = {
 
     // Stores a response in the database
-    setResponse: async (survey, username, question, answer) => {
+    setResponse: async (survey, username, auth_type, question, answer) => {
         var userHasResponded = await hasResponded(survey, username); 
         if (!userHasResponded)
-            await createResponse(survey, username);
+            await createResponse(survey, username, auth_type);
         await setReponse(survey, username, question, answer);
     },
 
@@ -104,18 +106,21 @@ module.exports = {
 
     // Checks if the user has completed their response
     hasCompletedResponse: async (survey, username) => {
-        if (!hasResponded(survey, username))
+        var userHasResponded = await hasResponded(survey, username); 
+        if (!userHasResponded)
             return false;
         var response = await getResponses(survey, username);
-        return false;
+        return response.completed == 1;
     },
 
 
     // Returns all completed responses to a survey
     getCompletedResponses: async (survey) => {
         var responses = [];
-        (await getCompletedResponses(survey)).forEach((result) => {
+        var completedResponses = await getCompletedResponses(survey);
+        completedResponses.forEach((result) => {
             delete result.username;
+            delete result.auth_type;
             delete result.completed;
             responses.push(result);
         });

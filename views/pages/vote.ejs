@@ -30,7 +30,7 @@
             <% } else { %>
             <!-- get started UI -->
                 <label class="mb-2 mr-sm-2">There are <%= questions.length %> questions in this survey. Ready?</label>
-                <button type="button" class="btn btn-primary px-5 mb-2 mr-sm-2 next-section">Let's Get Started!</button>
+                <button type="button" class="btn btn-primary px-5 mb-2 mr-sm-2 start-survey">Let's Get Started!</button>
             <% } %>
             </form>
         </div>
@@ -54,6 +54,7 @@
             </div>
             <div class="flex-column">
                 <form class="form-inline justify-content-center">
+                    <button type="button" class="btn btn-outline-secondary px-5 mb-2 mr-sm-2 prev-section">Back</button>
                     <button type="button" class="btn btn-success px-5 mb-2 mr-sm-2 finalise-survey">Submit My Answers!</button>
                 </form>
             </div>
@@ -67,6 +68,27 @@
 </footer>
 
 <!-- Modal -->
+<div class="modal fade" id="submissionErrorModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="submissionErrorModalTitle">Modal title</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body" id="submissionErrorModalMessage">
+            Modal Message
+        </div>
+        <div class="modal-footer">
+          <a onclick="$('#submissionErrorModal').modal('hide');">
+            <button type="button" class="btn btn-primary">Okay</button>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
 <div class="modal fade" id="submissionResponseModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
       <div class="modal-content">

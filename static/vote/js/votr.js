@@ -10,18 +10,6 @@ const getResponseType = (key) =>
 const getDisplayType = (key) =>
     $(getForm(key)).attr('data-display-as');
 
-const respond = (key, ans, path) => {
-    var responseObject = { q: key, a: ans };
-    $.ajax({
-        url: `${path}/response`,
-        type: 'POST',
-        data: JSON.stringify(responseObject),
-        contentType: 'application/json; charset=utf-8',
-        success: (data, text, jqXHR) => console.log(`Server accepted response for q${key}`),
-        error: (jqXHR, textStatus, errorThrown) => console.log(`Server rejected response for q${key} - ${errorThrown}`)
-    });
-};
-
 const canMoveNextQuestion = (obj) => {
     var key = obj.attr('data-key');
     var buttonId = `#question_next_${key}`;
@@ -46,6 +34,10 @@ $(document).ready(function () {
         canMoveNextQuestion($(this).parents('.question_form').first());
     });
 
+    $('.question_form').each(function (e) {
+        canMoveNextQuestion($(this));
+    });
+
     // For temp numeric input
     $('input[type="range"]').change(function (e) {
         var el = $(this);
@@ -62,21 +54,65 @@ $(document).ready(function () {
 
     }).trigger('change');
 
-    $('.next-section').click(function (e) {
-        if (currentProgressValue < 100) currentProgressValue += qPct;
-        $('#progress').css('width', `${currentProgressValue}%`);
-
-        activeQuestionPanel = $(this).parents('section').next();
-        $('body').scrollTo(activeQuestionPanel, 1000, { easing: 'easeInOutQuint' });
-    });
-
-    $('.prev-section').click(function (e) {
+    function loadPreviousSection(currentSection) {
         if (currentProgressValue > 0) currentProgressValue -= qPct;
         $('#progress').css('width', `${currentProgressValue}%`);
 
-        activeQuestionPanel = $(this).parents('section').prev();
+        activeQuestionPanel = currentSection.parents('section').prev();
         $('body').scrollTo(activeQuestionPanel, 1000, { easing: 'easeInOutQuint' });
+    }
+
+    function loadNextSection(currentSection) {
+        if (currentProgressValue < 100) currentProgressValue += qPct;
+        $('#progress').css('width', `${currentProgressValue}%`);
+
+        activeQuestionPanel = currentSection.parents('section').next();
+        $('body').scrollTo(activeQuestionPanel, 1000, { easing: 'easeInOutQuint' });
+    }
+
+
+    $('.start-survey').click(function (e) {
+        loadNextSection($(this));
     });
+
+    $('.prev-section').click(function (e) {
+        loadPreviousSection($(this));
+    });
+
+    function respond(key, ans, path, currentSection) {
+        var responseObject = { q: key, a: ans };
+        $.ajax({
+            url: `${path}/response`,
+            type: 'POST',
+            data: JSON.stringify(responseObject),
+            contentType: 'application/json; charset=utf-8',
+            success: (data, text, jqXHR) => {
+                console.log(`Server accepted response for q${key}`);
+                loadNextSection(currentSection);
+            },
+            error: (jqXHR, textStatus, errorThrown) => {
+                console.log(`Server rejected response for q${key} - ${errorThrown}`);
+                $('#submissionErrorModalTitle').html("Something Went Wrong...");
+                var errStr = "";
+                switch (jqXHR.status) {
+                    case 400:
+                        errStr = "The response incorrectly formed. This likely indicates a bug in the software and should be reported to the r/Pokemon team (400 BAD REQUEST).";
+                        break;
+                    case 401:
+                        errStr = "Our server does not have a record of your session authorisation, indicating you have either already completed this survey or have clicked 'decline' when asked to authorise your account (401 UNAUTHORIZED).";
+                        break;
+                    case 409:
+                        errStr = "Your response does not meet the requirements laid out above. or you have already responded to this survey (409 CONFLICT).";
+                        break
+                    default:
+                        errStr = `Unknown failure (${jqXHR.status} ${textStatus.toUpperCase()}).`;
+                        break;
+                }
+                $('#submissionErrorModalMessage').html(`Unfortunately an issue occured during transmission of your response: ${errStr}`);
+                $('#submissionErrorModal').modal('show');
+            }
+        });
+    }
 
     $('.record-response').click(function (e) {
         var key = $(this).attr('data-key');
@@ -113,12 +149,12 @@ $(document).ready(function () {
         if (response === undefined)
             response = 'ERR_REQUIRED_RESPONSE_NOT_GIVEN';
 
-        respond(key, response, path);
+        respond(key, response, path, $(this));
     });
 
     $('.skip-response').click(function (e) {
         var key = $(this).attr('data-key');
-        respond(key, null, path);
+        respond(key, null, path, $(this));
     });
 
     $('.finalise-survey').click(function (e) {

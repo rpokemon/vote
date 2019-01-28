@@ -1,7 +1,7 @@
 {
     "survey_name" : "User Interface Test Survey",
     "survey_description" : "This is a survey that contains every possible response type in order to exercise the user interface generation and survey response mechanisms.",
-    "auth_type": "discord",
+    "auth_types": ["discord"],
     "requires_mod": false,
     "questions": [
         {

@@ -38,13 +38,22 @@ function validate_response(question, response) {
 
         case 'multi':
             if (Array.isArray(response)) {
+                if (response.length < question.required) {
+                    return false;
+                }
                 response.forEach(element => {
                     if (!question.response_scale.includes(element))
                         return false;
                 });
             }
-            else if (!question.response_scale.includes(response))
-                return false;
+            else {
+                if (question.required > 1) {
+                    return false;
+                }
+            
+                if (!question.response_scale.includes(response))
+                    return false;
+            }
 
             break;
 
@@ -146,11 +155,14 @@ module.exports = (express) => {
 
         if (authentication_enabled) {
             // Handle if the user is not logged in
-            if (!req.session.auth || req.session.auth.type != survey.auth_type) {
+            if (!req.session.auth || survey.auth_types.indexOf(req.session.auth.type) == -1) {
 
                 survey.questions = null;
                 survey.require_auth = true;
-                survey.auth_url = auth[survey.auth_type].generate_url(req, res)
+                survey.auth_urls = [];
+                survey.auth_types.forEach(function(auth_type){
+                    survey.auth_urls.push(auth[auth_type].generate_url(req, res));
+                });
 
                 return res.status(200).render('pages/vote', survey);
             }
@@ -193,18 +205,28 @@ module.exports = (express) => {
         var a = req.body.a;
 
         // 400 BAD REQUEST: Malformed or non-existent response, probably a UI-bug
-        if (q == null | a == null)
+        if (q == null)
             return res.status(400).end();
 
-        // 409 CONFLICT: Response isn't what we expect, indicating tomfoolery.
-        if (q < 0 || q >= survey.questions.length)
+        // 409 CONFLICT: User has alreay completed the survey
+        if (await db.hasCompletedResponse(survey, req.session.auth.username))
             return res.status(409).end();
 
-        if (!validate_response(survey.questions[q], a))
-            return res.status(409).end();
+        // Check if question was skipped
+        if (!!survey.questions[q].required || a != null) {
+
+            // 409 CONFLICT: Response isn't what we expect, indicating tomfoolery.
+            if (q < 0 || q >= survey.questions.length)
+                return res.status(409).end();
+
+            if (!validate_response(survey.questions[q], a))
+                return res.status(409).end();
+        } else {
+            a = 'NULL';
+        }
 
         // Store results for vote from response
-        await db.setResponse(survey, req.session.auth.username, q, a);
+        await db.setResponse(survey, req.session.auth.username, req.session.auth.type, q, a);
         res.status(200).end();
     });
 
