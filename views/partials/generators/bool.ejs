@@ -14,7 +14,7 @@
     <% id= `question_${key}_${index}`; %>
     <input class="form-check-input question_input" type="radio" name="question_<%= key %>" id="<%= id %>" value="<%= response %>" />
     <label class="form-check-label" for="<%= id %>">
-        <%= response %>
+        <%- response %>
     </label>
 </div>
 <% }); %>
