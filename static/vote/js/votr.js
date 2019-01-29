@@ -24,6 +24,8 @@ const canMoveNextQuestion = (obj) => {
     }
 }
 
+var alertOnUnload = true;
+
 $(document).ready(function () {
 
     const path = $('body').attr('data-path');
@@ -31,7 +33,7 @@ $(document).ready(function () {
     const qPct = 100.0 / numQs;
     var currentProgressValue = 0.0;
     var activeQuestionPanel = $('section:first-of-type');
-    var surveyCompleted = false;
+    
 
     $('.question_input').change(function (e) {
         canMoveNextQuestion($(this).parents('.question_form').first());
@@ -165,7 +167,7 @@ $(document).ready(function () {
             url: `${path}/complete`,
             type: 'POST',
             success: () => {
-                surveyCompleted = true;
+                alertOnUnload = false;
                 $('#submissionResponseModalTitle').html("Responses Received!");
                 $('#submissionResponseModalMessage').html("That's that, all done! We've received your responses to this survey and they have been stored securely. For security reasons your session will be ended.");
                 $('#submissionResponseModal').modal('show');
@@ -204,7 +206,8 @@ $(document).ready(function () {
     });
 
     window.onbeforeunload = function() {
-        return surveyCompleted;
+        if (alertOnUnload)
+            return true;
     }
 
     $(window).resize();
