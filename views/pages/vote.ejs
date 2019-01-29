@@ -32,7 +32,7 @@
                 <% if (questions.length == 1) { %>
                     <label class="mb-2 mr-sm-2">There is 1 question in this survey. Ready?</label>
                 <% } else { %>
-                    <label class="mb-2 mr-sm-2">There are <%= questions.length %> questions in this survey. Ready?</label>
+                    <label class="mb-2 mr-sm-2">There are <%= questions.filter(e => e.response_type != 'info').length %> questions in this survey. Ready?</label>
                 <% } %>
                 <button type="button" class="btn btn-primary px-5 mb-2 mr-sm-2 start-survey">Let's Get Started!</button>
             <% } %>
@@ -113,6 +113,5 @@
       </div>
     </div>
   </div>
-
 </body>
 </html>

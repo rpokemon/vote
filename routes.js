@@ -92,7 +92,7 @@ function validate_response(question, response) {
             if (new Set(response).size != response.length)
                 return false;
             for (var i = 0; i < response.length; i++) {
-                if (isNaN(response[i]) || response[i] <= 0 || response[i] > responses.length)
+                if (isNaN(response[i]) || response[i] <= 0 || response[i] > response.length)
                     return false;
             };
             break;

@@ -2,7 +2,7 @@
     <div class="form-check mb-2">
         <% min= vote.response_scale[0]; max= vote.response_scale[1] %>
 
-        <input class="question_input" type="range" min="<%= min %>" max="<%= max %>" step="1" name="question_<%= key %>">
+        <input class="form-control question_input" type="range" min="<%= min %>" max="<%= max %>" step="1" name="question_<%= key %>">
         <output for="question_<%= key %>" onforminput="value = question_<%= key %>.valueAsNumber;"></output>
 
     </div>
