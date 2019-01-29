@@ -14,7 +14,8 @@ async function createTable(survey) {
     var questions = new String();
     for (index in survey.questions) {
         var question = survey.questions[index];
-        questions = questions.concat(`\`q${index}\` BLOB,\n`);
+        if (question.response_type != 'info')
+            questions = questions.concat(`\`q${index}\` BLOB,\n`);
     }
 
     // Create the table

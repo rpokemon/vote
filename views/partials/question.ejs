@@ -25,7 +25,7 @@
                     <% include ./generators/numeric.ejs vote.response_scale key %>
                     <% break; case "text":%>
                     <% include ./generators/textual.ejs vote.response_scale key %>
-                    <% break; default: %>
+                    <% break; case "info": break; default: %>
                     <h1 class="badge badge-danger">ERROR: No response scale generator found for '<%= vote.response_type %>'.</h1>
                     <% break; } %>
             </div>
@@ -34,11 +34,11 @@
             <div class="col-lg-12 text-center">
                 <button id="question_back_<%= key %>" type="button" class="btn btn-outline-secondary px-5 prev-section">Back</button>
 
-                <% if (!vote.required) { %> 
+                <% if (!vote.required && vote.response_type != 'info') { %> 
                 <button id="question_skip_<%= key %>" type="button" data-key="<%= key %>" class="btn btn-outline-primary px-5 skip-response">Skip</button>
                 <% } %>
 
-                <button id="question_next_<%= key %>" type="button" data-key="<%= key %>" class="btn btn-primary px-5 record-response" disabled>Next</button>
+                <button id="question_next_<%= key %>" type="button" data-key="<%= key %>" class="btn btn-primary px-5 <% if (vote.response_type != 'info') { %>record-response" disabled<% } else { %>start-survey" <% } %>>Next</button>
             </div>
         </div>
     </div>
