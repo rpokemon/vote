@@ -1,0 +1,26 @@
+<div data-selector="input[type=hidden]">
+    <script>
+        function updateValue_<%= key %>(newSelection) {
+            formInput = $('#question_<%= key %>');
+            newValue = ''
+            $('select[for=question_<%= key %>]').each(function (e) {
+                newValue += $(this).val();
+            });
+            formInput.val(newValue);
+        }
+    </script>
+    <input type="hidden" id="question_<%= key %>" value='<%= "1".repeat(vote.response_scale.length) %>'>
+    <% vote.response_scale.forEach((response, index) => { %>
+        <div class="form-check mb-2">
+            <% id= `question_${key}_${index}`; %>
+            <select class="form question_input" name="<%= id %>" for='question_<%= key %>' onchange="updateValue_<%= key %>($(this))">
+            <% vote.response_scale.forEach((response, index) => { %>
+                <option id="<%= id %>_<%= index %>"><%= index + 1 %></option>
+            <% }); %>
+            </select>
+            <label class="form-check-label" for="<%= id %>">
+                <%= response %>
+            </label>
+        </div>
+    <% }); %>
+</div>

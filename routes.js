@@ -87,6 +87,15 @@ function validate_response(question, response) {
                     break;
             }
             break;
+
+        case 'rank':
+            if (new Set(response).size != response.length)
+                return false;
+            for (var i = 0; i < response.length; i++) {
+                if (isNan(response[i]) || response[i] <= 0 || response[i] > responses.length)
+                    return false;
+            };
+            break;
     }
 
     return true;

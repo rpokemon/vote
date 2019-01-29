@@ -8,7 +8,7 @@
                 <h4><%= vote.question %></h4>
             </span>
             <!-- check vote.info is a non-empty string -->
-            <p class="lead col-lg-12 text-center"><%= vote.info %></p>
+            <p class="lead col-lg-12 text-center"><%- vote.info %></p>
         </div>
         <div class="row">
             <div class="mx-auto mb-5 mt-3 question_form"
@@ -25,6 +25,8 @@
                     <% include ./generators/numeric.ejs vote.response_scale key %>
                     <% break; case "text":%>
                     <% include ./generators/textual.ejs vote.response_scale key %>
+                    <% break; case "rank":%>
+                    <% include ./generators/ranked.ejs vote.response_scale key %>
                     <% break; case "info": break; default: %>
                     <h1 class="badge badge-danger">ERROR: No response scale generator found for '<%= vote.response_type %>'.</h1>
                     <% break; } %>

@@ -15,6 +15,8 @@ const canMoveNextQuestion = (obj) => {
     var buttonId = `#question_next_${key}`;
     var response = $(`${getForm(key)} ${getSelector(key)}`).val();
 
+    console.log(response);
+
     if (response !== undefined) {
         $(buttonId).removeAttr('disabled');
     } else {
