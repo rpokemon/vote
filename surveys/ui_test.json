@@ -3,7 +3,19 @@
     "survey_description" : "This is a survey that contains every possible response type in order to exercise the user interface generation and survey response mechanisms.",
     "auth_types": ["reddit", "discord"],
     "requires_mod": false,
+    "expires": "2019-01-24T15:27:17+0000",
     "questions": [
+        {
+            "question": "ranked, required",
+            "info": "Please select a ranking for as many options as you like, with 1 being your most preferred",
+            "required": true,
+            "response_type": "rank",
+            "response_scale": [
+                "Yes",
+                "No",
+                "Maybe"
+            ]
+        },
         {
             "question": "multiple-choice, single-selection",
             "info": "boolean, not required, display as dropdown",

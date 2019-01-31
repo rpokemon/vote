@@ -162,6 +162,15 @@ module.exports = (express) => {
         var survey = JSON.parse(fs.readFileSync(`${__dirname}/surveys/${req.params.vote_name}.json`, 'utf-8'));
         survey.path = req.path;
 
+        // Handle if the survey has expired
+        if (survey.hasOwnProperty('expires')) {
+            var now = new Date();
+            var expiry_date = new Date(survey.expires);
+
+            if (expiry_date < now)
+                return genError(req, res, 403, 'Forbidden', 'This survey has already expired.');
+        }
+
         if (authentication_enabled) {
             // Handle if the user is not logged in
             if (!req.session.auth || survey.auth_types.indexOf(req.session.auth.type) == -1) {
@@ -205,6 +214,15 @@ module.exports = (express) => {
         // 401 UNAUTHORIZED: User hasn't gone through account verification
         if (authentication_enabled && !req.session.auth)
             return res.status(401).end();
+
+        // Handle if the survey has expired
+        if (survey.hasOwnProperty('expires')) {
+            var now = new Date();
+            var expiry_date = new Date(survey.expires);
+
+            if (expiry_date < now)
+                return res.status(403).end();
+        }
 
         // req.body has two properties, q and a
         // q is the question number, zero indexed
