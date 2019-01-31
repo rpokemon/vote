@@ -4,8 +4,7 @@
             formInput = $('#question_<%= key %>');
             newValue = ''
             $('select[for=question_<%= key %>]').each(function (e) {
-                if (!isNaN($(this).val())) 
-                    newValue += $(this).val();
+                newValue += $(this).val();
             });
             formInput.val(newValue);
         }
@@ -19,7 +18,7 @@
         <div class="mb-2" style="display: table; width: 100%">
             <% id= `question_${key}_${index}`; %>
             <select class="form question_input" style="vertical-align: middle" name="<%= id %>" for='question_<%= key %>' onchange="updateValue_<%= key %>()">
-            <option selected>-</option>
+            <option selected value="-">-</option>
             <% vote.response_scale.forEach((response, index) => { %>
                 <option id="<%= id %>_<%= index %>"><%= index + 1 %></option>
             <% }); %>
