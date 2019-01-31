@@ -1,24 +1,30 @@
 <div data-selector="input[type=hidden]">
     <script>
-        function updateValue_<%= key %>(newSelection) {
+        function updateValue_<%= key %>() {
             formInput = $('#question_<%= key %>');
             newValue = ''
             $('select[for=question_<%= key %>]').each(function (e) {
-                newValue += $(this).val();
+                if (!isNaN($(this).val())) 
+                    newValue += $(this).val();
             });
             formInput.val(newValue);
         }
+        
+        $(document).ready(function () {
+            updateValue_<%= key %>();
+        });
     </script>
-    <input type="hidden" id="question_<%= key %>" value='<%= "1".repeat(vote.response_scale.length) %>'>
+    <input type="hidden" id="question_<%= key %>">
     <% vote.response_scale.forEach((response, index) => { %>
-        <div class="form-check mb-2">
+        <div class="mb-2" style="display: table; width: 100%">
             <% id= `question_${key}_${index}`; %>
-            <select class="form question_input" name="<%= id %>" for='question_<%= key %>' onchange="updateValue_<%= key %>($(this))">
+            <select class="form question_input" style="vertical-align: middle" name="<%= id %>" for='question_<%= key %>' onchange="updateValue_<%= key %>()">
+            <option selected>-</option>
             <% vote.response_scale.forEach((response, index) => { %>
                 <option id="<%= id %>_<%= index %>"><%= index + 1 %></option>
             <% }); %>
             </select>
-            <label class="form-check-label" for="<%= id %>">
+            <label class="form-check-label" style="width: calc(100% - 50px); float: right;" for="<%= id %>">
                 <%- response %>
             </label>
         </div>

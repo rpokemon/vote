@@ -89,7 +89,7 @@ function validate_response(question, response) {
             break;
 
         case 'rank':
-            if (new Set(response).size != response.length)
+            if (new Set(response).size != response.length || response.length > question.response_scale.length)
                 return false;
             for (var i = 0; i < response.length; i++) {
                 if (isNaN(response[i]) || response[i] <= 0 || response[i] > response.length)
