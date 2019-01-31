@@ -1,0 +1,49 @@
+<%
+    var datasets = [];
+    var colours = ["#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850"];
+
+    var data_ = data[`${key}`];
+    var results = []
+    for (var i = 0; i < vote.response_scale.length; i++) {
+        datasets.push({
+            label: i + 1,
+            backgroundColor: colours[i],
+            data: []
+        });
+
+        for (var j = 0; j < vote.response_scale.length; j++) {
+            datasets[i].data.push(0);
+        }
+    }
+
+    for (var i = 0; i < data_.length; i++) {
+        for (var j = 0; j < vote.response_scale.length; j++) {
+            if (!isNaN(data_[i][j])) {
+                datasets[data_[i][j] - 1].data[j]++;
+            }
+        }
+    }
+%>
+<canvas id="chart_<%= key %>"></canvas>
+<script>
+   var chart_<%= key %> = new Chart($('#chart_<%= key %>')[0].getContext('2d'),{
+        type: 'horizontalBar',
+        data: {
+            labels: <%- JSON.stringify(vote.response_scale) %>,
+            datasets: <%- JSON.stringify(datasets) %>
+        },
+        options: {
+            scales: {
+                xAxes: [{
+                    stacked: true,
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }],
+                yAxes: [{
+                    stacked: true
+                }],
+            }
+        }
+    });
+</script>

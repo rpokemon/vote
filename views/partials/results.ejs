@@ -18,6 +18,8 @@
                         <% include ./results/multi.ejs vote.response_scale key %>
                     <% break; case "int": %>
                         <% include ./results/numeric.ejs vote.response_scale key %>
+                    <% break; case "rank": %>
+                        <% include ./results/ranked.ejs vote.response_scale key %>
                     <% break; default: %>
                     <h1 class="badge badge-danger">ERROR: No result object found for '<%= vote.response_type %>'.</h1>
                     <% break; } %>
