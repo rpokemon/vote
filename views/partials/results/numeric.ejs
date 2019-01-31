@@ -1,0 +1,34 @@
+<%
+    var data_ = data[`${key}`];
+    var results = []
+    for (var i = 0; i <= vote.response_scale[1]; i++) {
+        results.push(0)
+        for (var j = 0; j < data_.length; j++) {
+            if (data_[j] == i)
+                results[i]++;
+        }
+    }
+
+    var labels = [];
+    for (var i = vote.response_scale[0]; i <= vote.response_scale[1]; i++) {
+        labels.push(i);
+    }
+%>
+<canvas id="chart_<%= key %>"></canvas>
+<script>
+    var chart_<%= key %> = new Chart($('#chart_<%= key %>')[0].getContext('2d'),{
+        type: 'line',
+        data: {
+            labels: <%- JSON.stringify(labels) %>,
+            datasets: [
+                {
+                    backgroundColor: ["#3e95cd"],
+                    data: <%- JSON.stringify(results) %>
+                }
+            ]
+        },
+        options: {
+            legend: { display: false },
+        }
+    });
+</script>

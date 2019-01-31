@@ -1,0 +1,24 @@
+<%
+    var data_ = data[`${key}`];
+    var results = []
+    for (var i = 0; i < vote.response_scale.length; i++) {
+        results.push(0)
+        for (var j = 0; j < data_.length; j++) {
+            if (data_[j] == i)
+                results[i]++;
+        }
+    }
+%>
+<canvas id="chart_<%= key %>"></canvas>
+<script>
+   var chart_<%= key %> = new Chart($('#chart_<%= key %>')[0].getContext('2d'),{
+        type: 'pie',
+        data: {
+            labels: <%- JSON.stringify(vote.response_scale) %>,
+            datasets: [{
+                backgroundColor: ['rgb(123, 233, 92)', 'rgb(255, 99, 132)'],
+                data: <%- JSON.stringify(results) %>
+            }]
+        },
+    });
+</script>

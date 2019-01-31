@@ -1,0 +1,28 @@
+<div class="container">
+    <div class="row">
+        <span class="mx-auto text-center col-lg-12 ">
+            <h4><%= vote.question %></h4>
+        </span>
+    </div>
+    <% if (vote.response_type != 'info') { %>
+        <div class="row">
+            <div class="mx-auto mb-5 mt-3 question_form"
+                id="question_form_<%= key %>"
+                data-key="<%= key %>"
+                data-response-type="<%= vote.response_type %>"
+                data-display-as="<% if (vote.display_as) { %><%= vote.display_as %><% } else { %>default<% } %>">
+                    <!-- inputs go here -->
+                    <% switch (vote.response_type) { case "bool": %>
+                        <% include ./results/bool.ejs vote.response_scale key %>
+                    <% break; case "multi": %>
+                        <% include ./results/multi.ejs vote.response_scale key %>
+                    <% break; case "int": %>
+                        <% include ./results/numeric.ejs vote.response_scale key %>
+                    <% break; default: %>
+                    <h1 class="badge badge-danger">ERROR: No result object found for '<%= vote.response_type %>'.</h1>
+                    <% break; } %>
+            </div>
+        </div>
+    <% } %>
+</div>
+

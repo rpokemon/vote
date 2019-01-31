@@ -1,0 +1,40 @@
+<%
+    var data_ = data[`${key}`];
+    var results = []
+    for (var i = 0; i < vote.response_scale.length; i++) {
+        results.push(0)
+        for (var j = 0; j < data_.length; j++) {
+            for (var k = 0; k < data_.length; k++) {
+                if (data_[j][k] == i)
+                    results[i]++;
+            }
+        }
+    }
+%>
+
+<%- %>
+<canvas id="chart_<%= key %>"></canvas>
+<script>
+   var chart_<%= key %> = new Chart($('#chart_<%= key %>')[0].getContext('2d'),{
+        type: 'horizontalBar',
+        data: {
+            labels: <%- JSON.stringify(vote.response_scale) %>,
+            datasets: [
+                {
+                    backgroundColor: ["#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850"],
+                    data: <%- JSON.stringify(results) %>
+                }
+            ]
+        },
+        options: {
+            scales: {
+                xAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }]
+            },
+            legend: { display: false },
+        }
+    });
+</script>

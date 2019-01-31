@@ -3,6 +3,11 @@ body {
     overflow: hidden;
 }
 
+body.results {
+  overflow: initial!important;
+  margin-top: 60px;
+}
+
 /* FOR TEMP NUMERIC INPUT */
 
 input[type="range"] + output { 

@@ -5,30 +5,32 @@
     <% include ../partials/head %>
     <script src="https://cdn.jsdelivr.net/npm/handsontable@6.2.2/dist/handsontable.full.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/handsontable@6.2.2/dist/handsontable.full.min.css" rel="stylesheet" media="screen">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
 </head>
-<body class="container">
+<body class="container results">
 
 <header class="fixed-top">
     <% include ../partials/header %>
 </header>
 
 <main>
-    <section class="d-flex flex-column justify-content-center" style="height: 100vh">
-        <div class="">
-            <div class="jumbotron">
-                <h1 class="display-4"><%= survey_name %> - Results</h1>
+    <section class="d-flex flex-column justify-content-center">
+        <h1 class="display-4"><%= survey_name %> - Results</h1>
 
-                <% if (require_auth) { %>
-                    <!-- authentication UI -->
-                    <% include ../partials/authentication %>
-                <% } else { %>
-                    <!-- TODO HANDLE RESPONSES -->
-                    <div id="results" style="overflow: hidden; height: 50vh"></div>
-                <% } %>   
-            </div>
-        </div>
+        <% if (require_auth) { %>
+            <!-- authentication UI -->
+            <% include ../partials/authentication %>
+        <% } else { %>
+            <!-- TODO HANDLE RESPONSES -->
+            <% questions.forEach((vote, key, arr) => { %>
+                <% include ../partials/results.ejs vote key data%>
+            <% }); %>
+
+            <h5>Results Spreadsheet</h5>
+
+            <div id="results" style="overflow: hidden; height: 50vh"></div>
+        <% } %>   
     </section>
-
 </main>
 
 <footer>
@@ -38,6 +40,7 @@
 </body>
 <script>
 var data = <%- JSON.stringify(responses) %>;
+var data2 = <%- JSON.stringify(data) %>;
 
 $(document).ready(function () {
     var container = $('#results')[0];

@@ -304,8 +304,17 @@ module.exports = (express) => {
             return genError(req, res, 401, 'Unauthorized', 'You are not authorized to access the results of this survey.');
 
         var responses = await db.getCompletedResponses(survey);
+
+        survey.data = {}
+        survey.questions.forEach(function (question, index) {
+            survey.data[index] = [];
+        });
+
         survey.responses = [];
-        responses.forEach(function (response, index) {
+        responses.forEach(function (response) {
+            Object.entries(response).forEach(([key, value]) => {
+                survey.data[key.slice(1)].push(value);
+            });
             survey.responses.push(Object.values(response));
         });
 
