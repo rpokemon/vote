@@ -11,7 +11,12 @@
 
     var labels = [];
     for (var i = vote.response_scale[0]; i <= vote.response_scale[1]; i++) {
-        labels.push(i);
+        if (i % 5 == 0) {
+            labels.push(i);
+        } else {
+            labels.push('');
+        }
+            
     }
 %>
 <canvas id="chart_<%= key %>" width="600px"></canvas>
