@@ -288,7 +288,7 @@ module.exports = (express) => {
 
         // Get results array for vote
 
-        if (!req.session.auth && survey.requires_mod) {
+        if (!req.session.auth) {
 
             survey.responses = null;
             survey.auth_urls = [];
