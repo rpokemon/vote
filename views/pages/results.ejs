@@ -39,6 +39,8 @@
 
 </body>
 <script>
+var data = <%- JSON.stringify(responses) %>;
+
 $(document).ready(function () {
     var container = $('#results')[0];
     var hot = new Handsontable(container, {
