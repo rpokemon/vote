@@ -14,7 +14,7 @@
         labels.push(i);
     }
 %>
-<canvas id="chart_<%= key %>"></canvas>
+<canvas id="chart_<%= key %>" width="600px"></canvas>
 <script>
     var chart_<%= key %> = new Chart($('#chart_<%= key %>')[0].getContext('2d'),{
         type: 'line',
