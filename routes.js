@@ -32,7 +32,7 @@ function validate_response(question, response) {
     switch (question.response_type) {
 
         case 'bool':
-            if (!question.response_scale.includes(response))
+            if (response < 0 || response >= question.response_scale.length)
                 return false;
             break;
 
@@ -42,7 +42,7 @@ function validate_response(question, response) {
                     return false;
                 }
                 response.forEach(element => {
-                    if (!question.response_scale.includes(element))
+                    if (element < 0 || element >= question.response_scale.length)
                         return false;
                 });
             }
@@ -51,7 +51,7 @@ function validate_response(question, response) {
                     return false;
                 }
 
-                if (!question.response_scale.includes(response))
+                if (response < 0 || response >= question.response_scale.length)
                     return false;
             }
 

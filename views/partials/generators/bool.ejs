@@ -3,7 +3,7 @@
 <select class="form-control form-control-lg question_input" name="question_<%= key %>">
 <% vote.response_scale.forEach((response, index) => { %>
 <% id = `question_${key}_${index}`; %>
-    <option id="<%= id %>"><%= response %></option>
+    <option id="<%= id %>" value="<%= index %>"><%= response %></option>
 <% }); %>
 </select>
 </div>
@@ -12,7 +12,7 @@
 <% vote.response_scale.forEach((response, index) => { %>
 <div class="form-check mb-2">
     <% id= `question_${key}_${index}`; %>
-    <input class="form-check-input question_input" type="radio" name="question_<%= key %>" id="<%= id %>" value="<%= response %>" />
+    <input class="form-check-input question_input" type="radio" name="question_<%= key %>" id="<%= id %>" value="<%= index %>" />
     <label class="form-check-label" for="<%= id %>">
         <%- response %>
     </label>
