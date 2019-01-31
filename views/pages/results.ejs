@@ -1,7 +1,10 @@
+<% locals.require_auth = !locals.responses %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <% include ../partials/head %>
+    <script src="https://cdn.jsdelivr.net/npm/handsontable@6.2.2/dist/handsontable.full.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/handsontable@6.2.2/dist/handsontable.full.min.css" rel="stylesheet" media="screen">
 </head>
 <body class="container">
 
@@ -14,8 +17,14 @@
         <div class="">
             <div class="jumbotron">
                 <h1 class="display-4"><%= survey_name %> - Results</h1>
-                <!-- TODO HANDLE RESPONSES -->
-                <code><%= JSON.stringify(responses); %></code>
+
+                <% if (require_auth) { %>
+                    <!-- authentication UI -->
+                    <% include ../partials/authentication %>
+                <% } else { %>
+                    <!-- TODO HANDLE RESPONSES -->
+                    <div id="results" style="overflow: hidden; height: 50vh"></div>
+                <% } %>   
             </div>
         </div>
     </section>
@@ -27,4 +36,19 @@
 </footer>
 
 </body>
+<script>
+var data = <%- JSON.stringify(responses) %>;
+
+$(document).ready(function () {
+    var container = $('#results')[0];
+    var hot = new Handsontable(container, {
+        data: data,
+        colHeaders: function(index){
+            return `q${index+1}`
+        },
+        rowHeaders: true,
+        dropdownMenu: true
+    });
+});
+</script>
 </html>

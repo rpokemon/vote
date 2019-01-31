@@ -28,6 +28,7 @@
             <!-- authentication UI -->
             <% include ../partials/authentication %>
             <% } else { %>
+                <script>alertOnUnload=true;</script>
             <!-- get started UI -->
                 <% if (questions.length == 1) { %>
                     <label class="mb-2 mr-sm-2">There is 1 question in this survey. Ready?</label>

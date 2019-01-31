@@ -50,7 +50,7 @@ function validate_response(question, response) {
                 if (question.required > 1) {
                     return false;
                 }
-            
+
                 if (!question.response_scale.includes(response))
                     return false;
             }
@@ -167,9 +167,8 @@ module.exports = (express) => {
             if (!req.session.auth || survey.auth_types.indexOf(req.session.auth.type) == -1) {
 
                 survey.questions = null;
-                survey.require_auth = true;
                 survey.auth_urls = [];
-                survey.auth_types.forEach(function(auth_type){
+                survey.auth_types.forEach(function (auth_type) {
                     survey.auth_urls.push(auth[auth_type].generate_url(req, res));
                 });
 
@@ -272,6 +271,8 @@ module.exports = (express) => {
     // GET /vote/somevotename/results
     express.get('/vote/:vote_name/results', async (req, res) => {
 
+        req.session.survey_name = req.params.vote_name + '/results';
+
         // Handle if survey doesn't exist
         if (!fs.existsSync(`${__dirname}/surveys/${req.params.vote_name}.json`))
             return genError(req, res, 404, 'Survey not found', 'The survey you have specified could not be found.');
@@ -279,17 +280,34 @@ module.exports = (express) => {
         // Load the survey config
         var survey = JSON.parse(fs.readFileSync(`${__dirname}/surveys/${req.params.vote_name}.json`, 'utf-8'));
         survey.path = req.path;
+        survey.name = req.params.vote_name;
 
         // TODO: determine if results are accessible (e.g. survey finished)
         if (false)
             return genError(req, res, 401, 'Unauthorized', 'You are not authorized to access this page.');
 
-        // TODO: determine if authentication is required (e.g. for mod vote)
-        if (false)
-            return genError(req, res, 401, 'Unauthorized', 'You are not authorized to access this page.');
-
         // Get results array for vote
-        survey.responses = await db.getCompletedResponses(req.params.vote_name);
+
+        if (!req.session.auth && survey.requires_mod) {
+
+            survey.responses = null;
+            survey.auth_urls = [];
+            survey.auth_types.forEach(function (auth_type) {
+                survey.auth_urls.push(auth[auth_type].generate_url(req, res));
+            });
+
+            return res.status(200).render('pages/results', survey);
+        }
+
+        // Handle if user is not authorised
+        if (!req.session.auth.is_mod)
+            return genError(req, res, 401, 'Unauthorized', 'You are not authorized to access the results of this survey.');
+
+        var responses = await db.getCompletedResponses(survey);
+        survey.responses = [];
+        responses.forEach(function (response, index) {
+            survey.responses.push(Object.values(response));
+        });
 
         // survey.responses is an array of response onjects
         // response objects containing keys of format q{id}

@@ -22,7 +22,7 @@ const canMoveNextQuestion = (obj) => {
     }
 }
 
-var alertOnUnload = true;
+var alertOnUnload = false;
 
 $(document).ready(function () {
 
