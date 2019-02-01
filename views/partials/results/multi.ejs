@@ -1,12 +1,15 @@
 <%
     var data_ = data[`${key}`];
+    console.log(data_)
     var results = []
     for (var i = 0; i < vote.response_scale.length; i++) {
         results.push(0)
         for (var j = 0; j < data_.length; j++) {
-            for (var k = 0; k < data_.length; k++) {
-                if (data_[j][k] == i)
-                    results[i]++;
+            if (!data[j] == null) {
+                for (var k = 0; k < data_[j].length; k++) {
+                    if (data_[j][k] == i)
+                        results[i]++;
+                }
             }
         }
     }
