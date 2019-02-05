@@ -18,7 +18,7 @@
 
     for (var i = 0; i < data_.length; i++) {
         for (var j = 0; j < vote.response_scale.length; j++) {
-            if (!isNaN(data_[i][j])) {
+            if (data_[i] != null && !isNaN(data_[i][j])) {
                 datasets[data_[i][j] - 1].data[j]++;
             }
         }
