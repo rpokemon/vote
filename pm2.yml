@@ -1,0 +1,4 @@
+apps:
+  script: '/bin/bash'
+  name: 'vote'
+  args: ['-c', 'node index.js']
