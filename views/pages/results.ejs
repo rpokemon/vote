@@ -26,7 +26,7 @@
                 <% include ../partials/results.ejs vote key data%>
             <% }); %>
 
-            <% if (locals.auth && auth.is_mod) { %>
+            <% if (typeof locals.auth !== "undefined" && auth.is_mod) { %>
                 <h5>Results Spreadsheet</h5>
                 <div id="results" style="overflow: hidden; height: 50vh"></div>
 
