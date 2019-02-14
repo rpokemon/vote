@@ -26,6 +26,17 @@ function redirect(req, res) {
         return res.redirect('/');
 }
 
+// Function checks if a survey has expired
+function has_expired(survey) {
+    if (survey.hasOwnProperty('expires')) {
+        var now = new Date();
+        var expiry_date = new Date(survey.expires);
+    
+        return expiry_date < now;
+    }
+    return false;
+}
+
 
 // Function validates a response to a question
 function validate_response(question, response) {
@@ -163,13 +174,9 @@ module.exports = (express) => {
         survey.path = req.path;
 
         // Handle if the survey has expired
-        if (survey.hasOwnProperty('expires')) {
-            var now = new Date();
-            var expiry_date = new Date(survey.expires);
-
-            if (expiry_date < now)
-                return genError(req, res, 403, 'Forbidden', 'This survey has already expired.');
-        }
+        if (has_expired(survey))
+            return genError(req, res, 403, 'Forbidden', 'This survey has already expired.');
+        
 
         if (authentication_enabled) {
             // Handle if the user is not logged in
@@ -216,13 +223,8 @@ module.exports = (express) => {
             return res.status(401).end();
 
         // Handle if the survey has expired
-        if (survey.hasOwnProperty('expires')) {
-            var now = new Date();
-            var expiry_date = new Date(survey.expires);
-
-            if (expiry_date < now)
-                return res.status(403).end();
-        }
+        if (has_expired(survey))
+            return res.status(403).end();
 
         // req.body has two properties, q and a
         // q is the question number, zero indexed
@@ -299,14 +301,8 @@ module.exports = (express) => {
         var survey = JSON.parse(fs.readFileSync(`${__dirname}/surveys/${req.params.vote_name}.json`, 'utf-8'));
         survey.path = req.path;
         survey.name = req.params.vote_name;
-
-        // TODO: determine if results are accessible (e.g. survey finished)
-        if (false)
-            return genError(req, res, 401, 'Unauthorized', 'You are not authorized to access this page.');
-
-        // Get results array for vote
-
-        if (!req.session.auth) {
+       
+        if (!has_expired(survey) && !req.session.auth) {
 
             survey.responses = null;
             survey.auth_urls = [];
@@ -318,9 +314,10 @@ module.exports = (express) => {
         }
 
         // Handle if user is not authorised
-        if (!req.session.auth.is_mod)
+        if (!has_expired(survey) && !req.session.auth.is_mod)
             return genError(req, res, 401, 'Unauthorized', 'You are not authorized to access the results of this survey.');
 
+        // Get results array for vote
         var responses = await db.getCompletedResponses(survey);
 
         survey.data = {}
