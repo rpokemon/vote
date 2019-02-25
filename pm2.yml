@@ -1,4 +1,4 @@
 apps:
   script: '/bin/bash'
-  name: 'vote'
+  name: 'rpkmn.center:/vote'
   args: ['-c', 'node index.js']
