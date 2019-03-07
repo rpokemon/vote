@@ -128,7 +128,7 @@ module.exports = {
                 });
 
 
-            } catch {
+            } catch (error) {
                 auth = null;
             }
 
