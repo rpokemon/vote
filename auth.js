@@ -81,56 +81,48 @@ module.exports = {
     discord: {
         authorize: async function (req, res) {
 
-            var auth;
-
-            try {
-                auth = {
-                    type: 'discord'
-                }
-                var token = null;
-
-
-                // Get information from discord
-                await request.post('https://discordapp.com/api/v6/oauth2/token', {
-                    form: {
-                        client_id: secrets.discord.client_id,
-                        client_secret: secrets.discord.client_secret,
-                        grant_type: 'authorization_code',
-                        code: req.query.code,
-                        redirect_uri: secrets.discord.redirect_uri,
-                        scope: 'identify'
-                    },
-                }, function (error, response, body) {
-                    token = JSON.parse(body).access_token;
-
-                });
-
-
-                // Get client username
-                await request.get('https://discordapp.com/api/v6/users/@me', {
-                    auth: {
-                        bearer: token
-                    }
-                }, function (error, response, body) {
-                    var user = JSON.parse(body);
-                    auth.userid = user.id;
-                    auth.username = `${user.username}#${user.discriminator}`;
-                });
-
-                // Determine if user is a mod
-                await request.get(`https://discordapp.com/api/v6/guilds/${R_POKEMON}/members/${auth.userid}`, {
-                    headers: {
-                        "Authorization": 'Bot ' + secrets.discord.bot_token
-                    }
-                }, function (error, response, body) {
-                    var member = JSON.parse(body);
-                    auth.is_mod = member.roles.indexOf("278331223775117313") != -1;
-                });
-
-
-            } catch (error) {
-                auth = null;
+            var auth = {
+                type: 'discord'
             }
+            var token = null;
+
+
+            // Get information from discord
+            await request.post('https://discordapp.com/api/v6/oauth2/token', {
+                form: {
+                    client_id: secrets.discord.client_id,
+                    client_secret: secrets.discord.client_secret,
+                    grant_type: 'authorization_code',
+                    code: req.query.code,
+                    redirect_uri: secrets.discord.redirect_uri,
+                    scope: 'identify'
+                },
+            }, function (error, response, body) {
+                token = JSON.parse(body).access_token;
+
+            });
+
+
+            // Get client username
+            await request.get('https://discordapp.com/api/v6/users/@me', {
+                auth: {
+                    bearer: token
+                }
+            }, function (error, response, body) {
+                var user = JSON.parse(body);
+                auth.userid = user.id;
+                auth.username = `${user.username}#${user.discriminator}`;
+            });
+
+            // Determine if user is a mod
+            await request.get(`https://discordapp.com/api/v6/guilds/${R_POKEMON}/members/${auth.userid}`, {
+                headers: {
+                    "Authorization": 'Bot ' + secrets.discord.bot_token
+                }
+            }, function (error, response, body) {
+                var member = JSON.parse(body);
+                auth.is_mod = member.roles.indexOf("278331223775117313") != -1;
+            });
 
             return auth;
 
