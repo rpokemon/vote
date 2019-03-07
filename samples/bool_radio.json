@@ -1,0 +1,11 @@
+{
+    "question": "Example Multiple Choice Question",
+    "info": "Additional information for this question",
+    "required": false,
+    "response_type": "bool",
+    "response_scale": [
+        "Option A",
+        "Option B",
+        "Option C"
+    ]
+}

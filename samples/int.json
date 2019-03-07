@@ -1,0 +1,10 @@
+{
+    "question": "Example Linear Scale Question",
+    "info": "Additional information for this question",
+    "required": false,
+    "response_type": "int",
+    "response_scale": [
+        1,
+        10
+    ]
+}

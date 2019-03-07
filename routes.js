@@ -126,6 +126,21 @@ module.exports = (express) => {
         return res.status(200).render('pages/index', data);
     });
 
+    // GET /vote/sample/:question_type
+    express.get('/vote/sample/:question_type', async (req, res) => {
+
+        // Check question type is valid
+        if (!fs.existsSync(`${__dirname}/samples/${req.params.question_type}.json`))
+            return genError(req, res, 404, 'Sample not found', 'The sample you have specified could not be found.');
+
+        question = {
+            vote: JSON.parse(fs.readFileSync(`${__dirname}/samples/${req.params.question_type}.json`)),
+            key: '_0'
+        }
+
+        res.status(200).render('pages/sample', question);
+    });
+
 
     // GET /vote/auth/someauthtype
     express.get('/vote/auth/:auth_type', async (req, res) => {

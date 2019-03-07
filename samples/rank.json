@@ -1,0 +1,11 @@
+{
+    "question": "Example Ranked Choice Question",
+    "info": "Additional information for this question",
+    "required": false,
+    "response_type": "rank",
+    "response_scale": [
+        "Option A",
+        "Option B",
+        "Option C"
+    ]
+}

@@ -1,0 +1,10 @@
+{
+    "question": "Example Paragraph Question",
+    "info": "Additional information for this question",
+    "required": false,
+    "response_type": "text",
+    "response_scale": [
+        "10c",
+        "250w"
+    ]
+}

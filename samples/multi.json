@@ -1,0 +1,11 @@
+{
+    "question": "Example Checkboxes Question",
+    "info": "Additional information for this question",
+    "required": 0,
+    "response_type": "multi",
+    "response_scale": [
+        "Option A",
+        "Option B",
+        "Option C"
+    ]
+}
