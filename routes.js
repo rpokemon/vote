@@ -330,7 +330,7 @@ module.exports = (express) => {
         }
 
         // Handle if user is not authorised
-        if (!has_expired(survey) && !req.session.auth.is_mod)
+        if (!has_expired(survey) && (!req.session.auth.is_mod || survey.auth_types.indexOf(req.session.auth.type) == -1))
             return genError(req, res, 401, 'Unauthorized', 'You are not authorized to access the results of this survey.');
 
         // Get results array for vote
