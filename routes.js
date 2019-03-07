@@ -381,7 +381,7 @@ module.exports = (express) => {
         }
 
         // 401 UNAUTHORIZED: User hasn't gone through account verification
-        if (!req.session.auth.is_mod)
+        if (!req.session.auth.is_mod || survey.auth_types.indexOf(req.session.auth.type) == -1)
             return genError(req, res, 401, 'Unauthorized', 'You are not authorized to access the configuration of this survey.');
 
         survey.config = config;
