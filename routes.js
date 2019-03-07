@@ -343,9 +343,7 @@ module.exports = (express) => {
     // GET /vote/somevotename/config
     express.get('/vote/:vote_name/config', async (req, res) => {
 
-        // 401 UNAUTHORIZED: User hasn't gone through account verification
-        if ((authentication_enabled && !req.session.auth) || !req.session.auth.is_mod)
-            return genError(req, res, 401, 'Unauthorized', 'You are not authorized to access the configuration of this survey.');
+        req.session.survey_name = req.params.vote_name + '/config';
 
         // Load the survey config
         if (!fs.existsSync(`${__dirname}/surveys/${req.params.vote_name}.json`)) {
@@ -355,10 +353,23 @@ module.exports = (express) => {
         }
 
         var survey = JSON.parse(config);
-        survey.config = config;
-        
         survey.path = req.path;
         survey.name = req.params.vote_name;
+
+        if (authentication_enabled && !req.session.auth) {
+            survey.config = null;
+            survey.auth_urls = [];
+            survey.auth_types.forEach(function (auth_type) {
+                survey.auth_urls.push(auth[auth_type].generate_url(req, res));
+            });
+            return res.status(200).render('pages/config', survey);
+        }
+
+        // 401 UNAUTHORIZED: User hasn't gone through account verification
+        if (!req.session.auth.is_mod)
+            return genError(req, res, 401, 'Unauthorized', 'You are not authorized to access the configuration of this survey.');
+
+        survey.config = config;
         survey.auth = req.session.auth;
 
         res.status(200).render('pages/config', survey);
@@ -373,7 +384,7 @@ module.exports = (express) => {
 
         // Overwrite the JSON config
         fs.writeFileSync(`${__dirname}/surveys/${req.params.vote_name}.json`, JSON.stringify(req.body, null, 4), 'utf-8');
-        
+
         // Get the survey
         var survey = req.body;
         survey.name = req.params.vote_name;

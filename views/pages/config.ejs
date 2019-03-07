@@ -1,4 +1,4 @@
-<% locals.require_auth = !locals.responses %>
+<% locals.require_auth = !locals.config %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -17,10 +17,15 @@
     <section class="d-flex flex-column justify-content-center">
         <h1 class="display-4"><%= survey_name %> - Config</h1>
 
-        <div id="editor" style="height: 600px;"><%= config %></div>
+        <% if (require_auth) { %>
+          <!-- authentication UI -->
+          <% include ../partials/authentication %>
+        <% } else { %>
+          <div id="editor" style="height: 600px;"><%= config %></div>
 
-        <br>
-        <button type="button" class="btn btn-success px-5 mb-2 mr-sm-2 update-survey">Update!</button>
+          <br>
+          <button type="button" class="btn btn-success px-5 mb-2 mr-sm-2 update-survey">Update!</button>
+        <% } %>
     </section>
 </main>
 
