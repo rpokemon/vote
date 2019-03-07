@@ -1,4 +1,14 @@
-<% locals.require_auth = !locals.questions || locals.questions.constructor !== Array; %>
+<% 
+locals.require_auth = !locals.questions || locals.questions.constructor !== Array; 
+
+locals.redirect = locals.redirect || {
+  message: 'Take me back to /r/Pokemon!',
+  link: 'https://reddit.com/r/pokemon'
+}
+
+%>
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -107,8 +117,8 @@
             Modal Message
         </div>
         <div class="modal-footer">
-          <a href="https://pokemon.reddit.com">
-            <button type="button" class="btn btn-primary">Take me back to r/Pokemon</button>
+          <a href="<%= redirect.link %>">
+            <button type="button" class="btn btn-primary"><%= redirect.message %></button>
           </a>
         </div>
       </div>
