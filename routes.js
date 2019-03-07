@@ -31,7 +31,7 @@ function has_expired(survey) {
     if (survey.hasOwnProperty('expires')) {
         var now = new Date();
         var expiry_date = new Date(survey.expires);
-    
+
         return expiry_date < now;
     }
     return false;
@@ -176,7 +176,7 @@ module.exports = (express) => {
         // Handle if the survey has expired
         if (has_expired(survey))
             return genError(req, res, 403, 'Forbidden', 'This survey has already expired.');
-        
+
 
         if (authentication_enabled) {
             // Handle if the user is not logged in
@@ -258,6 +258,7 @@ module.exports = (express) => {
         res.status(200).end();
     });
 
+    // POST /vote/somevotename/complete
     express.post('/vote/:vote_name/complete', async (req, res) => {
 
         // 400 BAD REQUEST: Survey does not exist
@@ -301,7 +302,7 @@ module.exports = (express) => {
         var survey = JSON.parse(fs.readFileSync(`${__dirname}/surveys/${req.params.vote_name}.json`, 'utf-8'));
         survey.path = req.path;
         survey.name = req.params.vote_name;
-       
+
         if (!has_expired(survey) && !req.session.auth) {
 
             survey.responses = null;
@@ -339,5 +340,70 @@ module.exports = (express) => {
         res.status(200).render('pages/results', survey);
     });
 
+    // GET /vote/somevotename/config
+    express.get('/vote/:vote_name/config', async (req, res) => {
 
+        // 401 UNAUTHORIZED: User hasn't gone through account verification
+        if ((authentication_enabled && !req.session.auth) || !req.session.auth.is_mod)
+            return genError(req, res, 401, 'Unauthorized', 'You are not authorized to access the configuration of this survey.');
+
+        // Load the survey config
+        if (!fs.existsSync(`${__dirname}/surveys/${req.params.vote_name}.json`)) {
+            var config = fs.readFileSync(`${__dirname}/surveys/sample.json`, 'utf-8');
+        } else {
+            var config = fs.readFileSync(`${__dirname}/surveys/${req.params.vote_name}.json`, 'utf-8');
+        }
+
+        var survey = JSON.parse(config);
+        survey.config = config;
+        
+        survey.path = req.path;
+        survey.name = req.params.vote_name;
+        survey.auth = req.session.auth;
+
+        res.status(200).render('pages/config', survey);
+    });
+
+    // POST /vote/somevotename/update
+    express.post('/vote/:vote_name/config/update', async (req, res) => {
+
+        // 401 UNAUTHORIZED: User hasn't gone through account verification
+        if ((authentication_enabled && !req.session.auth) || !req.session.auth.is_mod)
+            return res.status(401).end();
+
+        // Overwrite the JSON config
+        fs.writeFileSync(`${__dirname}/surveys/${req.params.vote_name}.json`, JSON.stringify(req.body, null, 4), 'utf-8');
+        
+        // Get the survey
+        var survey = req.body;
+        survey.name = req.params.vote_name;
+
+        // Update the database copy
+        await db.deleteSurvey(survey);
+        await db.createSurvey(survey);
+
+        return res.status(200).end();
+
+    });
+
+    // DELETE /vote/somevotename/delete
+    express.delete('/vote/:vote_name/config/delete', async (req, res) => {
+
+        // 400 BAD REQUEST: Survey does not exist
+        if (!fs.existsSync(`${__dirname}/surveys/${req.params.vote_name}.json`))
+            return res.status(400).end();
+
+        // Get the survey
+        var survey = JSON.parse(fs.readFileSync(`${__dirname}/surveys/${req.params.vote_name}.json`, 'utf-8'));
+        survey.name = req.params.vote_name;
+
+        // 401 UNAUTHORIZED: User hasn't gone through account verification
+        if ((authentication_enabled && !req.session.auth) || !req.session.auth.is_mod)
+            return res.status(401).end();
+
+        await db.deleteSurvey(survey);
+
+        return res.status(200).end();
+
+    });
 };

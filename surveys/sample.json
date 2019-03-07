@@ -1,0 +1,21 @@
+{
+    "survey_name" : "Sample survey config",
+    "survey_description" : "This is an example survey config.",
+    "auth_types": ["reddit", "discord"],
+    "requires_mod": false,
+    "expires": "2099-12-31T23:59:59+0000",
+    "questions": [
+        {
+            "question": "Sample question",
+            "info": "Sample question description",
+            "required": false,
+            "response_type": "bool",
+            "response_scale": [
+                "yes",
+                "no",
+                "maybe"
+            ],
+            "display_as": "dropdown"
+        }
+    ]
+}

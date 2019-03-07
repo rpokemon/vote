@@ -6,7 +6,7 @@ const dbPromise = sqlite.open(`${__dirname}/responses.db`, { Promise });
 
 
 // Function creats a new database table if one does not exist
-async function createTable(survey) {
+async function createSurvey(survey) {
     // Get the database
     const db = await dbPromise;
 
@@ -29,6 +29,12 @@ async function createTable(survey) {
     );`);
 }
 
+// Deletes a survey from the database
+async function deleteSurvey(survey) {
+    const db = await dbPromise;
+    return await db.run(`DROP TABLE IF EXISTS \`${survey.name}\`;`);
+}
+
 
 // Setup response tables if they don't exist
 fs.readdirSync(`${__dirname}/surveys`).forEach(async file => {
@@ -38,7 +44,7 @@ fs.readdirSync(`${__dirname}/surveys`).forEach(async file => {
     survey.name = path.parse(file).name;
 
     // Create the table
-    await createTable(survey);
+    await createSurvey(survey);
 });
 
 
@@ -81,7 +87,6 @@ async function getCompletedResponses(survey) {
     const db = await dbPromise;
     return await db.all(`SELECT * FROM \`${survey.name}\` WHERE \`completed\`;`);
 }
-
 
 module.exports = {
 
@@ -132,6 +137,16 @@ module.exports = {
     // Sets a users response to completed
     setCompletedResponse: async (survey, username) => {
         await setCompletedResponse(survey, username);
+    },
+
+    // Creates a survey
+    createSurvey: async (survey) => {
+        await createSurvey(survey);
+    },
+
+    // Deletes a survey from the database
+    deleteSurvey: async (survey) => {
+        await deleteSurvey(survey);
     }
 }
 

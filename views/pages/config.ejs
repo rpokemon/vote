@@ -1,0 +1,139 @@
+<% locals.require_auth = !locals.responses %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <% include ../partials/head %>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.3/ace.js" type="text/javascript" charset="utf-8"></script>
+    <script src="/vote/js/config.js"></script>
+</head>
+<body class="container results" data-path="<%= path %>">
+
+<header class="fixed-top">
+    <% include ../partials/header %>
+    
+</header>
+
+<main>
+    <section class="d-flex flex-column justify-content-center">
+        <h1 class="display-4"><%= survey_name %> - Config</h1>
+
+        <div id="editor" style="height: 600px;"><%= config %></div>
+
+        <br>
+        <button type="button" class="btn btn-success px-5 mb-2 mr-sm-2 update-survey">Update!</button>
+    </section>
+</main>
+
+<footer>
+    <% include ../partials/footer %>
+</footer>
+
+
+<!-- Modal -->
+<div class="modal fade" id="submissionErrorModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="submissionErrorModalTitle">Modal title</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body" id="submissionErrorModalMessage">
+            Modal Message
+        </div>
+        <div class="modal-footer">
+          <a onclick="$('#submissionErrorModal').modal('hide');">
+            <button type="button" class="btn btn-primary">Okay</button>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<div class="modal fade" id="submissionResponseModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="submissionResponseModalTitle">Modal title</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body" id="submissionResponseModalMessage">
+            Modal Message
+        </div>
+        <div class="modal-footer">
+          <a href="https://pokemon.reddit.com">
+            <button type="button" class="btn btn-primary">Take me back to r/Pokemon</button>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+
+
+<script>
+    var editor = ace.edit("editor");
+    editor.setTheme("ace/theme/monokai");
+    editor.session.setMode("ace/mode/javascript");
+
+    $(document).ready(function () {
+
+        const path = $('body').attr('data-path');
+
+        $('.update-survey').click(function (e) {
+            
+            try {
+                var config = JSON.parse(editor.getValue());
+            } catch {
+                alert('Syntax error in JSON!');
+                return;
+            }
+            
+            console.log(config);
+    
+
+            if (confirm("Are you sure you want to update the survey? (Previous submissions will be deleted)")) {
+                $.ajax({
+                    url: `${path}/update`,
+                    type: 'POST',
+                    data: JSON.stringify(config),
+                    contentType: 'application/json; charset=utf-8',
+                    success: () => {
+                        alertOnUnload = false;
+                        $('#submissionResponseModalTitle').html("Responses Received!");
+                        $('#submissionResponseModalMessage').html("Survey Updated!");
+                        $('#submissionResponseModal').modal('show');
+                    },
+                    error: (jqXHR, textStatus) => {
+                        $('#submissionResponseModalTitle').html("Something Went Wrong...");
+
+                        var errStr = "";
+                        switch (jqXHR.status) {
+                            case 400:
+                                errStr = "The Survey could not be found. (400 BAD REQUEST).";
+                                break;
+                            case 401:
+                                errStr = "Our server does not have a record of your session authorisation, indicating you have either already completed this survey or have clicked 'decline' when asked to authorise your account (401 UNAUTHORIZED).";
+                                break;
+                            case 409:
+                                errStr = "The response table was too short, too long, or contained response entries that do not match the required type or format (409 CONFLICT).";
+                                break
+                            default:
+                                errStr = `Unknown failure (${jqXHR.status} ${textStatus.toUpperCase()}).`;
+                                break;
+                        }
+
+                        $('#submissionResponseModalMessage').html(`Unfortunately an issue occured during transmission: ${errStr}`);
+                        $('#submissionResponseModal').modal('show');
+                    }
+                });
+            }
+        });
+    });
+</script>
+
+</html>
