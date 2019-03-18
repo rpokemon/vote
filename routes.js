@@ -155,7 +155,13 @@ module.exports = (express) => {
             return genError(req, res, 500, 'Internal Server Error', 'An error has occured: Auth invalid. Please try again.');
 
         // Authorize
-        req.session.auth = await auth_type.authorize(req, res);
+        auth = await auth_type.authorize(req, res);
+
+        // If auth produced an error
+        if (typeof auth === 'string')
+            return genError(req, res, 500, 'Internal Server Error', 'An error has occured: ' + auth);
+
+        req.session.auth = auth
 
         // Redirect to last survey
         return redirect(req, res);
@@ -204,6 +210,15 @@ module.exports = (express) => {
                 });
 
                 return res.status(200).render('pages/vote', survey);
+            }
+
+            // Handle if discord servey requires specific roles
+            if (survey.auth_types == ["discord"] && survey.required_roles) {
+                for (var role in survey.required_roles) {
+                    if (req.session.auth.roles.indexOf(role) == -1) {
+                        return genError(req, res, 401, 'Unauthorized', 'You are not authorized to access this survey.');
+                    }
+                }
             }
 
             // Handle if user is not authorised

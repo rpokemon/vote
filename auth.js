@@ -6,6 +6,7 @@ const request = require('request-promise');
 const secrets = JSON.parse(fs.readFileSync(`${__dirname}/secrets.json`, 'utf-8'));
 
 const R_POKEMON = 111504456838819840;
+const MOD_ROLE = "278331223775117313";
 
 module.exports = {
     reddit: {
@@ -88,7 +89,9 @@ module.exports = {
 
 
             // Get information from discord
-            await request.post('https://discordapp.com/api/v6/oauth2/token', {
+            await await request({
+                method: `POST`,
+                uri: 'https://discordapp.com/api/v6/oauth2/token',
                 form: {
                     client_id: secrets.discord.client_id,
                     client_secret: secrets.discord.client_secret,
@@ -96,32 +99,50 @@ module.exports = {
                     code: req.query.code,
                     redirect_uri: secrets.discord.redirect_uri,
                     scope: 'identify'
-                },
-            }, function (error, response, body) {
+                }
+            }).then((body) => {
                 token = JSON.parse(body).access_token;
-
+            }).catch((error) => {
+                auth = "Unable to fetch user token.";
             });
+
+            if (typeof auth === 'string')
+                return auth;
+
 
 
             // Get client username
-            await request.get('https://discordapp.com/api/v6/users/@me', {
+            await request({
+                method: `GET`,
+                uri: 'https://discordapp.com/api/v6/users/@me',
                 auth: {
                     bearer: token
                 }
-            }, function (error, response, body) {
+            }).then((body) => {
                 var user = JSON.parse(body);
                 auth.userid = user.id;
                 auth.username = `${user.username}#${user.discriminator}`;
+            }).catch((error) => {
+                auth = "Unable to determine username.";
             });
 
+            if (typeof auth === 'string')
+                return auth;
+
             // Determine if user is a mod
-            await request.get(`https://discordapp.com/api/v6/guilds/${R_POKEMON}/members/${auth.userid}`, {
+            await request({
+                method: `GET`,
+                uri: `https://discordapp.com/api/v6/guilds/${R_POKEMON}/members/${auth.userid}`,
                 headers: {
                     "Authorization": 'Bot ' + secrets.discord.bot_token
                 }
-            }, function (error, response, body) {
+            }).then((body) => {
                 var member = JSON.parse(body);
-                auth.is_mod = member.roles.indexOf("278331223775117313") != -1;
+                auth.roles = member.roles;
+                auth.is_mod = member.roles.indexOf(MOD_ROLE) != -1;
+            }).catch((error) => {
+                console.log(error.message);
+                auth = "User is not in the /r/pokemon server";
             });
 
             return auth;
