@@ -155,13 +155,11 @@ module.exports = (express) => {
             return genError(req, res, 500, 'Internal Server Error', 'An error has occured: Auth invalid. Please try again.');
 
         // Authorize
-        auth = await auth_type.authorize(req, res);
+        req.session.auth = await auth_type.authorize(req, res);
 
         // If auth produced an error
-        if (typeof auth === 'string')
-            return genError(req, res, 500, 'Internal Server Error', 'An error has occured: ' + auth);
-
-        req.session.auth = auth
+        if (typeof req.session.auth === 'string')
+            return genError(req, res, 500, 'Internal Server Error', 'An error has occured: ' + req.session.auth);
 
         // Redirect to last survey
         return redirect(req, res);
