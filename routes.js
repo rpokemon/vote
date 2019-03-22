@@ -217,7 +217,8 @@ module.exports = (express) => {
                 console.log(req.session.auth.roles);
 
                 for (var role in survey.required_roles) {
-                    
+                    role = survey.required_roles[role];
+
                     console.log(role);
 
                     if (req.session.auth.roles.indexOf(role) != -1) {
