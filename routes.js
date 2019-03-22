@@ -211,10 +211,15 @@ module.exports = (express) => {
             }
 
             // Handle if discord servey requires specific roles
-            if (survey.required_roles) {
+            if (survey.required_roles && !req.session.auth.is_mod) {
                 var has_roles = false;
 
+                console.log(req.session.auth.roles);
+
                 for (var role in survey.required_roles) {
+                    
+                    console.log(role);
+
                     if (req.session.auth.roles.indexOf(role) != -1) {
                         has_roles = true;
                     }
