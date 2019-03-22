@@ -211,11 +211,17 @@ module.exports = (express) => {
             }
 
             // Handle if discord servey requires specific roles
-            if (survey.auth_types == ["discord"] && survey.required_roles) {
+            if (survey.required_roles) {
+                var has_roles = false;
+
                 for (var role in survey.required_roles) {
-                    if (req.session.auth.roles.indexOf(role) == -1) {
-                        return genError(req, res, 401, 'Unauthorized', 'You are not authorized to access this survey.');
+                    if (req.session.auth.roles.indexOf(role) != -1) {
+                        has_roles = true;
                     }
+                }
+
+                if (!has_roles) {
+                    return genError(req, res, 401, 'Unauthorized', 'You are not authorized to access this survey.');
                 }
             }
 
