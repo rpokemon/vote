@@ -277,7 +277,7 @@ module.exports = (express) => {
             return res.status(400).end();
 
         // 409 CONFLICT: User has alreay completed the survey
-        if (await db.hasCompletedResponse(survey, req.session.auth.username))
+        if (await db.hasCompletedResponse(survey, req.session.auth.userid))
             return res.status(409).end();
 
         // Check if question was skipped
@@ -294,7 +294,7 @@ module.exports = (express) => {
         }
 
         // Store results for vote from response
-        await db.setResponse(survey, req.session.auth.username, req.session.auth.type, q, a);
+        await db.setResponse(survey, req.session.auth.userid, req.session.auth.type, q, a);
         res.status(200).end();
     });
 
@@ -314,17 +314,17 @@ module.exports = (express) => {
             return res.status(401).end();
 
         // 409 CONFLICT: User has alreay completed the survey
-        if (await db.hasCompletedResponse(survey, req.session.auth.username))
+        if (await db.hasCompletedResponse(survey, req.session.auth.userid))
             return res.status(409).end();
 
         // 409 CONFLICT: User has not completed all required questions
-        responses = await db.getResponses(survey, req.session.auth.username)
+        responses = await db.getResponses(survey, req.session.auth.userid)
         survey.questions.forEach(function (question, index) {
             if (question.required && responses[`q${index}`] == null)
                 return res.status(409).end();
         });
 
-        await db.setCompletedResponse(survey, req.session.auth.username);
+        await db.setCompletedResponse(survey, req.session.auth.userid);
         res.status(200).end();
     });
 

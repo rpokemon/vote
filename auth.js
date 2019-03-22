@@ -44,7 +44,7 @@ module.exports = {
                 }
             }, function (error, response, body) {
                 auth.username = `/u/${JSON.parse(body).name}`;
-
+                auth.userid = auth.username;
             });
 
             // Check if client mods subreddit
