@@ -1,4 +1,4 @@
-<section id="question_section_<%= key %>" class="d-flex align-items-center" style="height: 100vh">
+<section id="question_section_<%= key %>" class="d-flex align-items-center" style="height: 100vh" <% if (vote.hasOwnProperty("follow_up")) { %><%= `follow_up=${vote.follow_up}` %><% } %>>
     <div class="container">
         <div class="row">
             <span class="mx-auto text-center col-lg-12 ">
@@ -8,7 +8,7 @@
                 <h4><%= vote.question %></h4>
             </span>
             <!-- check vote.info is a non-empty string -->
-            <p class="lead col-lg-12 text-center"><%- vote.info %></p>
+            <p class="md lead col-lg-12 text-center"><%- vote.info %></p>
         </div>
         <div class="row">
             <div class="mx-auto mb-5 mt-3 question_form"

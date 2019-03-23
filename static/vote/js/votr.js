@@ -31,7 +31,7 @@ $(document).ready(function () {
     const qPct = 100.0 / numQs;
     var currentProgressValue = 0.0;
     var activeQuestionPanel = $('section:first-of-type');
-    
+
 
     $('.question_input').change(function (e) {
         canMoveNextQuestion($(this).parents('.question_form').first());
@@ -58,18 +58,32 @@ $(document).ready(function () {
     }).trigger('change');
 
     function loadPreviousSection(currentSection) {
-        if (currentProgressValue > 0) currentProgressValue -= qPct;
-        $('#progress').css('width', `${currentProgressValue}%`);
-
         activeQuestionPanel = currentSection.parents('section').prev();
+
+        // If previous question was a follow up
+        if (activeQuestionPanel.attr('follow_up')) {
+            activeQuestionPanel = currentSection.parents('section').prev().prev();
+            if (currentProgressValue > 0) currentProgressValue -= (2 * qPct);
+        } else {
+            if (currentProgressValue > 0) currentProgressValue -= qPct;
+        }
+
+        $('#progress').css('width', `${currentProgressValue}%`);
         $('body').scrollTo(activeQuestionPanel, 1000, { easing: 'easeInOutQuint' });
     }
 
-    function loadNextSection(currentSection) {
-        if (currentProgressValue < 100) currentProgressValue += qPct;
-        $('#progress').css('width', `${currentProgressValue}%`);
+    function loadNextSection(currentSection, skip = false) {
 
-        activeQuestionPanel = currentSection.parents('section').next();
+        // If next section is to be skipped
+        if (skip) {
+            activeQuestionPanel = currentSection.parents('section').next().next();
+            if (currentProgressValue < 100) currentProgressValue += (2 * qPct);
+        } else {
+            activeQuestionPanel = currentSection.parents('section').next();
+            if (currentProgressValue < 100) currentProgressValue += qPct;
+        }
+
+        $('#progress').css('width', `${currentProgressValue}%`);
         $('body').scrollTo(activeQuestionPanel, 1000, { easing: 'easeInOutQuint' });
     }
 
@@ -91,7 +105,17 @@ $(document).ready(function () {
             contentType: 'application/json; charset=utf-8',
             success: (data, text, jqXHR) => {
                 console.log(`Server accepted response for q${key}`);
-                loadNextSection(currentSection);
+
+                // If follow up question to be ignored!
+                next_question = currentSection.parents('section').next();
+                if (next_question.attr('follow_up')) {
+                    console.log(next_question.attr('follow_up'));
+
+                    is_follow_up = ans != next_question.attr('follow_up');
+                    loadNextSection(currentSection, is_follow_up);
+                } else {
+                    loadNextSection(currentSection);
+                }
             },
             error: (jqXHR, textStatus, errorThrown) => {
                 console.log(`Server rejected response for q${key} - ${errorThrown}`);

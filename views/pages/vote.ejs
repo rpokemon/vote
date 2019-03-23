@@ -13,6 +13,29 @@ locals.redirect = locals.redirect || {
 <html lang="en">
 <head>
     <% include ../partials/head %>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.3.0/showdown.js"></script>
+    <script>
+      $(document).ready(function() {
+        showdown.extension('targetlink', function() {
+          return [{
+            type: 'html',
+            filter: function (text) {
+                return (''+text).replace(/<a\s+href=/gi, '<a target="_blank" href=');
+            }
+          }];
+        });
+
+        var converter = new showdown.Converter({
+          extensions: ['targetlink']
+        });
+        $.each($('.md'), function(index, value) {
+            var md = $(this).text();
+            var html = converter.makeHtml(md);
+            $(this).html(html)
+        });
+      });
+    </script>
+
 </head>
 <body class="container" data-path="<%= path %>">
 
