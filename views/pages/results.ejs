@@ -3,8 +3,6 @@
 <html lang="en">
 <head>
     <% include ../partials/head %>
-    <script src="https://cdn.jsdelivr.net/npm/handsontable@6.2.2/dist/handsontable.full.min.js"></script>
-    <link href="https://cdn.jsdelivr.net/npm/handsontable@6.2.2/dist/handsontable.full.min.css" rel="stylesheet" media="screen">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
 </head>
 <body class="container results">
@@ -25,12 +23,6 @@
             <% questions.forEach((vote, key, arr) => { %>
                 <% include ../partials/results.ejs vote key data%>
             <% }); %>
-
-            <% if (typeof locals.auth !== "undefined" && auth.is_mod) { %>
-                <h5>Results Spreadsheet</h5>
-                <div id="results" style="overflow: hidden; height: 50vh"></div>
-
-            <% } %>
         <% } %>   
     </section>
 </main>
@@ -40,19 +32,4 @@
 </footer>
 
 </body>
-<script>
-var data = <%- JSON.stringify(responses) %>;
-
-$(document).ready(function () {
-    var container = $('#results')[0];
-    var hot = new Handsontable(container, {
-        data: data,
-        colHeaders: function(index){
-            return `q${index+1}`
-        },
-        rowHeaders: true,
-        dropdownMenu: true
-    });
-});
-</script>
 </html>
